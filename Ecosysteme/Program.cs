@@ -65,7 +65,7 @@ namespace Ecosysteme
             this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
             while (direction[0]==0&&direction[1]==0) //test 2
             {
-                this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
+                this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};//test 3
             }
             this.speed = speed;
         }
