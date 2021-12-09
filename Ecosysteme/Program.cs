@@ -63,7 +63,7 @@ namespace Ecosysteme
             this.contactRadius = 20;
             Random rnd = new Random();
             this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
-            while (direction[0]==0&&direction[1]==0)
+            while (direction[0]==0&&direction[1]==0) //test
             {
                 this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
             }
