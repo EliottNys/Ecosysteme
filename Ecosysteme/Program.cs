@@ -61,6 +61,7 @@ namespace Ecosysteme
     class Animal : Organism
     {
         //attributes
+        private int sex;    //0=male, 1=female
         private int visionRadius;
         private int contactRadius;  //how close an animal has to be with an object to interact with it (eat, mate...)
         private int[] direction;
@@ -70,9 +71,10 @@ namespace Ecosysteme
         public Animal(int[] coordinates, int walkSpeed, int runSpeed) :
         base(coordinates)
         {
+            Random rnd = new Random();
+            sex = rnd.Next(1);
             visionRadius = 20;
             contactRadius = 20;
-            Random rnd = new Random();
             direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
@@ -105,6 +107,10 @@ namespace Ecosysteme
             new OrganicWaste(this.coordinates, amount);
         }
         //accessors
+        public int getSex()
+        {
+            return sex;
+        }
         public int getVisionRadius()
         {
             return visionRadius;
