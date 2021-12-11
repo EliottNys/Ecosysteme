@@ -12,8 +12,8 @@ namespace Ecosysteme
         //constructor
         public Organism(int[] coordinates)
         {
-            this.life = 100;
-            this.energy = 100;
+            life = 100;
+            energy = 100;
             this.coordinates = coordinates;
         }
         //methods
@@ -25,15 +25,15 @@ namespace Ecosysteme
         //accessors
         public int getLife()
         {
-            return this.life;
+            return life;
         }
         public int getEnergy()
         {
-            return this.energy;
+            return energy;
         }
         public int[] getCoordinates()
         {
-            return this.coordinates;
+            return coordinates;
         }
     }
     class Plant : Organism
@@ -45,17 +45,17 @@ namespace Ecosysteme
         public Plant(int[] coordinates):
         base(coordinates)
         {
-            this.rootRadius = 10;
-            this.sowingRadius = 10;
+            rootRadius = 10;
+            sowingRadius = 10;
         }
         //accessors
         public int getRootRadius()
         {
-            return this.rootRadius;
+            return rootRadius;
         }
         public int getSowingRadius()
         {
-            return this.sowingRadius;
+            return sowingRadius;
         }
     }
     class Animal : Organism
@@ -70,13 +70,13 @@ namespace Ecosysteme
         public Animal(int[] coordinates, int WalkSpeed, int RunSpeed):
         base(coordinates)
         {
-            this.visionRadius = 20;
-            this.contactRadius = 20;
+            visionRadius = 20;
+            contactRadius = 20;
             Random rnd = new Random();
-            this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)}; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)}; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0]==0&&direction[1]==0)    //(0,0) is not a direction, so we generate a new one
             {
-                this.direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
+                direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
             }
             this.WalkSpeed = WalkSpeed;
             this.RunSpeed = RunSpeed;
@@ -84,17 +84,21 @@ namespace Ecosysteme
         //methods
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
         {
-            this.coordinates[0] += direction[0] * WalkSpeed;
-            this.coordinates[1] += direction[1] * WalkSpeed;
+            coordinates[0] += direction[0] * WalkSpeed;
+            coordinates[1] += direction[1] * WalkSpeed;
         }
         public void Run()
         {
-            this.coordinates[0] += direction[0] * RunSpeed;
-            this.coordinates[1] += direction[1] * RunSpeed;
+            coordinates[0] += direction[0] * RunSpeed;
+            coordinates[1] += direction[1] * RunSpeed;
         }
         public void ChangeDirection(int[] direction)
         {
             this.direction = direction;
+        }
+        public void fatigue(int amount) //when an animal walks or runs, it loses energy
+        {
+            energy -= amount;
         }
     }
     class Program
