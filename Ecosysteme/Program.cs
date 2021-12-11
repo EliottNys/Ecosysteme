@@ -67,16 +67,16 @@ namespace Ecosysteme
         private int WalkSpeed;
         private int RunSpeed;   //used in case of hunting or fleeing
         //constructor
-        public Animal(int[] coordinates, int WalkSpeed, int RunSpeed):
+        public Animal(int[] coordinates, int WalkSpeed, int RunSpeed) :
         base(coordinates)
         {
             visionRadius = 20;
             contactRadius = 20;
             Random rnd = new Random();
-            direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)}; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
-            while (direction[0]==0&&direction[1]==0)    //(0,0) is not a direction, so we generate a new one
+            direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
-                direction = new[] { rnd.Next(-1,1), rnd.Next(-1,1)};
+                direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) };
             }
             this.WalkSpeed = WalkSpeed;
             this.RunSpeed = RunSpeed;
@@ -99,6 +99,10 @@ namespace Ecosysteme
         public void Fatigue(int amount) //when an animal walks or runs, it loses energy
         {
             energy -= amount;
+        }
+        public void Poop(int amount)    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
+        {
+            new OrganicWaste(this.coordinates, amount);
         }
     }
     class Meat  //created when an animal dies
