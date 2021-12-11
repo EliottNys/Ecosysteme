@@ -96,9 +96,41 @@ namespace Ecosysteme
         {
             this.direction = direction;
         }
-        public void fatigue(int amount) //when an animal walks or runs, it loses energy
+        public void Fatigue(int amount) //when an animal walks or runs, it loses energy
         {
             energy -= amount;
+        }
+    }
+    class Meat
+    {
+        //atributes
+        private int[] coordinates;
+        private int time;   //after some times, the meat rots and becomes organic waste
+        private int calories;   //defines how much energy it would provide to a carnivore or how much organic waste it would produce
+        //constructor
+        public Meat(int[]coordinates, int calories)
+        {
+            this.coordinates = coordinates;
+            this.calories = calories;
+            time = 0;
+        }
+        //methods
+        public void Rot()
+        {
+            time += 1;
+        }
+        //accessors
+        public int[] getCoordinates()
+        {
+            return coordinates;
+        }
+        public int getTime()
+        {
+            return time;
+        }
+        public int getCalories()
+        {
+            return calories;
         }
     }
     class Program
@@ -107,7 +139,7 @@ namespace Ecosysteme
         {
             Console.WriteLine("Début");
             Random rnd = new Random();
-            Animal Vache = new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10,25);
+            //Animal Vache = new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10,25);
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
             Vache.Walk();
