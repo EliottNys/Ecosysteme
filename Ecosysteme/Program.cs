@@ -101,14 +101,14 @@ namespace Ecosysteme
             energy -= amount;
         }
     }
-    class Meat
+    class Meat  //created when an animal dies
     {
         //atributes
         private int[] coordinates;
-        private int time;   //after some times, the meat rots and becomes organic waste
+        private int time;   //after some time, the meat rots and becomes organic waste
         private int calories;   //defines how much energy it would provide to a carnivore or how much organic waste it would produce
         //constructor
-        public Meat(int[]coordinates, int calories)
+        public Meat(int[] coordinates, int calories)
         {
             this.coordinates = coordinates;
             this.calories = calories;
@@ -131,6 +131,18 @@ namespace Ecosysteme
         public int getCalories()
         {
             return calories;
+        }
+    }
+    class OrganicWaste  //created when a plant dies, meat rots or an animal poops
+    {
+        //atributes
+        private int[] coordinates;
+        private int nutrients;   //equivalent to "calories" attribute for Meat class; defines how much energy it would provide to a plant
+        //constructor
+        public OrganicWaste(int[] coordinates, int nutrients)
+        {
+            this.coordinates=coordinates;
+            this.nutrients = nutrients;
         }
     }
     class Program
