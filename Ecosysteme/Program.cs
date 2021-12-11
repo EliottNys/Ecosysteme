@@ -64,10 +64,10 @@ namespace Ecosysteme
         private int visionRadius;
         private int contactRadius;  //how close an animal has to be with an object to interact with it (eat, mate...)
         private int[] direction;
-        private int WalkSpeed;
-        private int RunSpeed;   //used in case of hunting or fleeing
+        private int walkSpeed;
+        private int runSpeed;   //used in case of hunting or fleeing
         //constructor
-        public Animal(int[] coordinates, int WalkSpeed, int RunSpeed) :
+        public Animal(int[] coordinates, int walkSpeed, int runSpeed) :
         base(coordinates)
         {
             visionRadius = 20;
@@ -78,19 +78,19 @@ namespace Ecosysteme
             {
                 direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) };
             }
-            this.WalkSpeed = WalkSpeed;
-            this.RunSpeed = RunSpeed;
+            this.walkSpeed = walkSpeed;
+            this.runSpeed = runSpeed;
         }
         //methods
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
         {
-            coordinates[0] += direction[0] * WalkSpeed;
-            coordinates[1] += direction[1] * WalkSpeed;
+            coordinates[0] += direction[0] * walkSpeed;
+            coordinates[1] += direction[1] * walkSpeed;
         }
         public void Run()
         {
-            coordinates[0] += direction[0] * RunSpeed;
-            coordinates[1] += direction[1] * RunSpeed;
+            coordinates[0] += direction[0] * runSpeed;
+            coordinates[1] += direction[1] * runSpeed;
         }
         public void ChangeDirection(int[] direction)
         {
@@ -100,9 +100,30 @@ namespace Ecosysteme
         {
             energy -= amount;
         }
-        public void Poop(int amount)    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
+        public void Poop(int amount)    //when an animal poops, it leaves organic waste behind (which can be consumed by plants); the amount it poops is defined by how much he ate
         {
             new OrganicWaste(this.coordinates, amount);
+        }
+        //accessors
+        public int getVisionRadius()
+        {
+            return visionRadius;
+        }
+        public int getContactRadius()
+        {
+            return contactRadius;
+        }
+        public int[] getDirection()
+        {
+            return direction;
+        }
+        public int getWalkSpeed()
+        {
+            return walkSpeed;
+        }
+        public int getRunSpeed()
+        {
+            return runSpeed;
         }
     }
     class Meat  //created when an animal dies
