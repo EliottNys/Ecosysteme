@@ -2,6 +2,14 @@
 
 namespace Ecosysteme
 {
+    public static class Coordinates    //permet de manipuler les coordonnées
+    {
+        public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
+        {
+            return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0],2) + Math.Pow(firstCoordinates[0] - secondCoordinates[0],2)));
+            //N.B.: I use Math.Ceiling to always round UP
+        }
+    }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
     abstract class Organism
     {
@@ -181,7 +189,7 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             Console.WriteLine("Début");
-            Random rnd = new Random();
+            //Random rnd = new Random();
             //Animal Vache = new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10,25);
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
@@ -194,6 +202,11 @@ namespace Ecosysteme
             Console.WriteLine(string.Join(", ", Vache.getLife(), Vache.getEnergy()));
             Vache.ConvertEnergy(5);
             Console.WriteLine(string.Join(", ", Vache.getLife(), Vache.getEnergy()));
+            */
+            /*
+            int[] co1 = new int[] { 10, 10 };
+            int[] co2 = new int[] { 20, 20 };
+            Console.WriteLine(Coordinates.Distance(co1, co2));
             */
             Console.WriteLine("Fin");
         }
