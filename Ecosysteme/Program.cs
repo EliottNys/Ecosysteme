@@ -71,7 +71,7 @@ namespace Ecosysteme
             return sowingRadius;
         }
     }
-    class Animal : Organism
+    abstract class Animal : Organism
     {
         //attributes
         private int sex;    //0=male, 1=female
@@ -143,6 +143,14 @@ namespace Ecosysteme
         public int getRunSpeed()
         {
             return runSpeed;
+        }
+    }
+    abstract class Herbivore : Animal
+    {
+        public Herbivore(int[] coordinates, int walkSpeed, int runSpeed) :
+        base(coordinates, walkSpeed, runSpeed)
+        {
+
         }
     }
     class Meat : Entity  //created when an animal dies
