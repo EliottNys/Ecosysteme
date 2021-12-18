@@ -19,9 +19,10 @@ namespace Ecosysteme
         protected int[] coordinates;
         public bool IsFirstTime;
         //methods
+        abstract public void Iterate();
         public override string ToString()
         {
-            return base.ToString() + string.Format(": coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
+            return string.Format(": coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
         }
         //accessors
         public int[] getCoordinates()
@@ -42,6 +43,29 @@ namespace Ecosysteme
             this.coordinates = coordinates;
         }
         //methods
+        public override void Iterate()
+        {
+            this.IterateEnergy(1);
+        }
+        public void IterateEnergy(int amount)
+        {
+            if (energy > amount)
+            {
+                this.Fatigue(amount);
+            }
+            else if (life > amount)
+            {
+                this.ConvertEnergy(amount);
+            }
+            else
+            {
+                //renvoyer au programme de supprimer l'instance = mourir
+            }
+        }
+        public void Fatigue(int amount) //when an animal walks or runs, it loses energy
+        {
+            energy -= amount;
+        }
         public void ConvertEnergy(int amount)   //when an organism does not have any energy left, it converts lifepoints into energypoints
         {
             life -= amount;
@@ -118,10 +142,6 @@ namespace Ecosysteme
         public void ChangeDirection(int[] direction)
         {
             this.direction = direction;
-        }
-        public void Fatigue(int amount) //when an animal walks or runs, it loses energy
-        {
-            energy -= amount;
         }
         public void Poop(int amount)    //when an animal poops, it leaves organic waste behind (which can be consumed by plants); the amount it poops is defined by how much he ate
         {
@@ -215,6 +235,13 @@ namespace Ecosysteme
             time = 0;
         }
         //methods
+        public override void Iterate()
+        {
+            if (time<20)
+            {
+                this.Rot();
+            }
+        }
         public void Rot()
         {
             time += 1;
@@ -244,6 +271,10 @@ namespace Ecosysteme
             this.nutrients = nutrients;
         }
         //methods
+        public override void Iterate()
+        {
+            ;
+        }
         public override string ToString()
         {
             return base.ToString() + string.Format(", nutrients={0}", nutrients);
@@ -261,8 +292,7 @@ namespace Ecosysteme
             Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             foreach (Entity entity in Entities)
             {
-                Console.WriteLine(entity.ToString());
-                Console.WriteLine(IDGenerator.GetId(entity, out entity.IsFirstTime));
+                Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
             }
             while(true)
             {
@@ -273,12 +303,20 @@ namespace Ecosysteme
                     int iteration = 0;
                     while (iteration < iterations)
                     {
+                        foreach (Entity entity in Entities)
+                        {
+                            entity.Iterate();
+                        }
                         iteration++;
                     }
                 }
                 else
                 {
                     Console.WriteLine($"\"{numberOfIterations}\" is not a number. Please type an integer.");
+                }
+                foreach (Entity entity in Entities)
+                {
+                    Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
                 }
             }
             /*
