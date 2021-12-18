@@ -4,6 +4,13 @@ using System.Runtime.Serialization;
 
 namespace Ecosysteme
 {
+    public static class Terminal
+    {
+        public static void Separate()
+        {
+            Console.WriteLine("______________________________________________________________");
+        }
+    }
     public static class Coordinates    //allows to handle coordinates
     {
         public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
@@ -54,9 +61,10 @@ namespace Ecosysteme
             {
                 this.Fatigue(amount);
             }
-            else if (life > amount)
+            else if (life > amount-energy)
             {
-                this.ConvertEnergy(amount);
+                this.ConvertEnergy(amount-energy);
+                this.Fatigue(amount);
             }
             else
             {
@@ -334,12 +342,14 @@ namespace Ecosysteme
             ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
             Random rnd = new Random();
             Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
+            Entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
             Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             foreach (Entity entity in Entities)
             {
                 Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
             }
-            while(true)
+            Terminal.Separate();
+            while (true)
             {
                 Console.WriteLine("How many iterations would you like to complete ?");
                 string numberOfIterations = Console.ReadLine();
@@ -354,14 +364,15 @@ namespace Ecosysteme
                         }
                         iteration++;
                     }
+                    foreach (Entity entity in Entities)
+                    {
+                        Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
+                    }
+                    Terminal.Separate();
                 }
                 else
                 {
                     Console.WriteLine($"\"{numberOfIterations}\" is not a number. Please type an integer.");
-                }
-                foreach (Entity entity in Entities)
-                {
-                    Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
                 }
             }
         }
