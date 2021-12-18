@@ -35,6 +35,10 @@ namespace Ecosysteme
             life -= amount;
             energy += amount;
         }
+        public override string ToString()
+        {
+            return base.ToString() + string.Format(": life={0}, energy={1}, coordinates=[{2},{3}]", life, energy, coordinates[0], coordinates[1]);
+        }
         //accessors
         public int getLife()
         {
@@ -181,6 +185,7 @@ namespace Ecosysteme
     }
     class Grass : Plant
     {
+        //constructor
         public Grass(int[] coordinates) :
         base(coordinates)
         {
@@ -236,17 +241,13 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             Console.WriteLine("Début");
-            List<Entity> Entities = new List<Entity>();
-            /*
+            List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
             Random rnd = new Random();
-            Entities.Add(new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10, 25));
-            Entities.Add(new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10, 25));
-            foreach (Animal animal in Entities)
+            Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
+            foreach (Entity entity in Entities)
             {
-                Console.WriteLine(animal.getWalkSpeed());
+                Console.WriteLine(entity.ToString());
             }
-            */
-            //Animal Vache = new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10,25);
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
             Vache.Walk();
