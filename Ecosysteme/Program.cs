@@ -284,7 +284,6 @@ namespace Ecosysteme
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Début");
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
             ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing
             Random rnd = new Random();
@@ -319,24 +318,6 @@ namespace Ecosysteme
                     Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
                 }
             }
-            /*
-            Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
-            Vache.Walk();
-            Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
-            Vache.Run();
-            Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
-            */
-            /*
-            Console.WriteLine(string.Join(", ", Vache.getLife(), Vache.getEnergy()));
-            Vache.ConvertEnergy(5);
-            Console.WriteLine(string.Join(", ", Vache.getLife(), Vache.getEnergy()));
-            */
-            /*
-            int[] co1 = new int[] { 10, 10 };
-            int[] co2 = new int[] { 20, 20 };
-            Console.WriteLine(Coordinates.Distance(co1, co2));
-            */
-            Console.WriteLine("Fin");
         }
     }
 }
