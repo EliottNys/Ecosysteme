@@ -14,6 +14,12 @@ namespace Ecosysteme
         {
             Console.WriteLine(entities.Display());
         }
+        public static string AskIterations()
+        {
+            Console.WriteLine("How many iterations would you like to complete ?");
+            string numberOfIterations = Console.ReadLine();
+            return numberOfIterations;
+        }
     }
     public class Entities
     {
@@ -35,7 +41,14 @@ namespace Ecosysteme
             {
                 text += string.Format("id={0}, type={1}, {2}\n", IDGenerator.GetId(entity, out entity.IsFirstTime), entity.GetType().Name, entity.ToString());
             }
-            return text;
+            if (text.Length > 3)
+            {
+                return text.Remove(text.Length - 1, 1);
+            }
+            else
+            {
+                return "There are no entities";
+            }
         }
         public void Add(Entity entity)
         {
@@ -375,8 +388,9 @@ namespace Ecosysteme
             entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
             entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
-            Terminal.Separate();
             Terminal.Entities(entities);
+            Terminal.Separate();
+            Terminal.AskIterations();
             /*
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
             ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
