@@ -16,6 +16,16 @@ namespace Ecosysteme
     {
         //attributes
         protected int[] coordinates;
+        //methods
+        public override string ToString()
+        {
+            return base.ToString() + string.Format(": coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
+        }
+        //accessors
+        public int[] getCoordinates()
+        {
+            return coordinates;
+        }
     }
     abstract class Organism : Entity    //everything that is alive
     {
@@ -47,10 +57,6 @@ namespace Ecosysteme
         public int getEnergy()
         {
             return energy;
-        }
-        public int[] getCoordinates()
-        {
-            return coordinates;
         }
     }
     abstract class Plant : Organism //all plant species
@@ -212,10 +218,6 @@ namespace Ecosysteme
             time += 1;
         }
         //accessors
-        public int[] getCoordinates()
-        {
-            return coordinates;
-        }
         public int getTime()
         {
             return time;
