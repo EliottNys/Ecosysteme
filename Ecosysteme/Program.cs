@@ -16,10 +16,11 @@ namespace Ecosysteme
     abstract class Entity   //all objects that interact (organisms, meat & organic waste)
     {
         //attributes
-        protected int[] coordinates;
-        public bool IsFirstTime;
+        protected int[] coordinates;    //position in the plane
+        public bool IsFirstTime;    //needed for the ID generator (public so the generator can modify it)
         //methods
-        abstract public void Iterate();
+        abstract public void Iterate(); //what happens to the entity or what the entity does at each iteration
+        //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString()
         {
             return string.Format(": coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
@@ -62,7 +63,7 @@ namespace Ecosysteme
                 //renvoyer au programme de supprimer l'instance = mourir
             }
         }
-        public void Fatigue(int amount) //when an animal walks or runs, it loses energy
+        public void Fatigue(int amount) //an organism loses energy over time ; when an animal walks or runs, it loses energy
         {
             energy -= amount;
         }
@@ -97,6 +98,12 @@ namespace Ecosysteme
         {
             
         }
+        //methods
+        public override void Iterate()
+        {
+            base.Iterate();
+            //behavior unique to plants
+        }
         //accessors
         public int getRootRadius()
         {
@@ -105,6 +112,10 @@ namespace Ecosysteme
         public int getSowingRadius()
         {
             return sowingRadius;
+        }
+        public int getPropagationSpeed()
+        {
+            return propagationSpeed;
         }
     }
     abstract class Animal : Organism    //herbivores and carnivores
@@ -116,6 +127,8 @@ namespace Ecosysteme
         protected int[] direction;
         protected int walkSpeed;
         protected int runSpeed;   //used in case of hunting or fleeing
+        protected bool pregnant;
+        protected int pregnantTime;
         //constructor
         public Animal(int[] coordinates) :
         base(coordinates)
@@ -127,8 +140,15 @@ namespace Ecosysteme
             {
                 direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) };
             }
+            pregnant = false;
+            pregnantTime = 0;
         }
         //methods
+        public override void Iterate()
+        {
+            base.Iterate();
+            // behavior unique to animals
+        }
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
         {
             coordinates[0] += direction[0] * walkSpeed;
@@ -145,7 +165,20 @@ namespace Ecosysteme
         }
         public void Poop(int amount)    //when an animal poops, it leaves organic waste behind (which can be consumed by plants); the amount it poops is defined by how much he ate
         {
-            new OrganicWaste(this.coordinates, amount);
+            //informs the program to create organic waste at the animal's position
+        }
+        public void PregnancyIteration()
+        {
+            if (pregnantTime < 90)
+            {
+                pregnantTime++;
+            }
+            else
+            {
+                pregnant = false;
+                pregnantTime = 0;
+                //inform program to creat a new animal of the same type at the animal's position
+            }
         }
         //accessors
         public int getSex()
@@ -175,18 +208,31 @@ namespace Ecosysteme
     }
     abstract class Herbivore : Animal   //all herbivore species
     {
+        //constructor
         public Herbivore(int[] coordinates) :
         base(coordinates)
         {
 
         }
+        //methods
+        public override void Iterate()
+        {
+            base.Iterate();
+            //behavior unique to herbivores
+        }
     }
     abstract class Carnivore : Animal   //all carnivore species
     {
+        //constructor
         public Carnivore(int[] coordinates) :
         base(coordinates)
         {
 
+        }
+        public override void Iterate()
+        {
+            base.Iterate();
+            //behavior unique to carnivores
         }
     }
     class Deer : Herbivore
@@ -285,7 +331,7 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
-            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing
+            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
             Random rnd = new Random();
             Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
