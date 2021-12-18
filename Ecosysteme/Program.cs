@@ -86,8 +86,6 @@ namespace Ecosysteme
         {
             Random rnd = new Random();
             sex = rnd.Next(1);
-            //visionRadius = 20;
-            //contactRadius = 20;
             direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
@@ -168,6 +166,17 @@ namespace Ecosysteme
             contactRadius = 5;
             walkSpeed = 10;
             runSpeed = 25;
+        }
+    }
+    class Wolf : Carnivore
+    {
+        public Wolf(int[] coordinates) :
+        base(coordinates)
+        {
+            visionRadius = 50;
+            contactRadius = 5;
+            walkSpeed = 10;
+            runSpeed = 40;
         }
     }
     class Meat : Entity  //created when an animal dies
