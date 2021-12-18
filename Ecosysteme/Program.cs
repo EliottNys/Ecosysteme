@@ -11,12 +11,16 @@ namespace Ecosysteme
         }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
-    abstract class Organism
+    abstract class Entity
+    {
+        //attributes
+        protected int[] coordinates;
+    }
+    abstract class Organism : Entity
     {
         //attributes
         protected int life;
         protected int energy;
-        protected int[] coordinates;
         //constructor
         public Organism(int[] coordinates)
         {
@@ -140,10 +144,9 @@ namespace Ecosysteme
             return runSpeed;
         }
     }
-    class Meat  //created when an animal dies
+    class Meat : Entity  //created when an animal dies
     {
         //atributes
-        private int[] coordinates;
         private int time;   //after some time, the meat rots and becomes organic waste
         private int calories;   //defines how much energy it would provide to a carnivore or how much organic waste it would produce
         //constructor
@@ -172,10 +175,9 @@ namespace Ecosysteme
             return calories;
         }
     }
-    class OrganicWaste  //created when a plant dies, meat rots or an animal poops
+    class OrganicWaste : Entity  //created when a plant dies, meat rots or an animal poops
     {
         //atributes
-        private int[] coordinates;
         private int nutrients;   //equivalent to "calories" attribute for Meat class; defines how much energy it would provide to a plant
         //constructor
         public OrganicWaste(int[] coordinates, int nutrients)
