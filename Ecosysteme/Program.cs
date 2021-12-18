@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Ecosysteme
 {
@@ -16,6 +17,7 @@ namespace Ecosysteme
     {
         //attributes
         protected int[] coordinates;
+        public bool IsFirstTime;
         //methods
         public override string ToString()
         {
@@ -253,12 +255,14 @@ namespace Ecosysteme
         {
             Console.WriteLine("Début");
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
+            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    
             Random rnd = new Random();
             Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             foreach (Entity entity in Entities)
             {
                 Console.WriteLine(entity.ToString());
+                Console.WriteLine(IDGenerator.GetId(entity, out entity.IsFirstTime));
             }
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
