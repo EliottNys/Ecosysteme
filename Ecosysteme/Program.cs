@@ -54,12 +54,12 @@ namespace Ecosysteme
         //attributes
         protected int rootRadius; //how far a plant can consume organic waste
         protected int sowingRadius;   //how far new plants can appear
+        protected int propagationSpeed; //how frequently a plant sows
         //constructor
         public Plant(int[] coordinates):
         base(coordinates)
         {
-            rootRadius = 10;
-            sowingRadius = 10;
+            
         }
         //accessors
         public int getRootRadius()
@@ -177,6 +177,16 @@ namespace Ecosysteme
             contactRadius = 5;
             walkSpeed = 10;
             runSpeed = 40;
+        }
+    }
+    class Grass : Plant
+    {
+        public Grass(int[] coordinates) :
+        base(coordinates)
+        {
+            rootRadius = 10;
+            sowingRadius = 30;
+            propagationSpeed = 20;
         }
     }
     class Meat : Entity  //created when an animal dies
