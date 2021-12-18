@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Ecosysteme
 {
@@ -191,7 +192,16 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             Console.WriteLine("Début");
-            //Random rnd = new Random();
+            List<Entity> Entities = new List<Entity>();
+            /*
+            Random rnd = new Random();
+            Entities.Add(new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10, 25));
+            Entities.Add(new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10, 25));
+            foreach (Animal animal in Entities)
+            {
+                Console.WriteLine(animal.getWalkSpeed());
+            }
+            */
             //Animal Vache = new Animal(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 10,25);
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
