@@ -255,7 +255,7 @@ namespace Ecosysteme
         {
             Console.WriteLine("Début");
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
-            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    
+            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing
             Random rnd = new Random();
             Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
@@ -263,6 +263,23 @@ namespace Ecosysteme
             {
                 Console.WriteLine(entity.ToString());
                 Console.WriteLine(IDGenerator.GetId(entity, out entity.IsFirstTime));
+            }
+            while(true)
+            {
+                Console.WriteLine("How many iterations would you like to complete ?");
+                string numberOfIterations = Console.ReadLine();
+                if (int.TryParse(numberOfIterations, out int iterations))
+                {
+                    int iteration = 0;
+                    while (iteration < iterations)
+                    {
+                        iteration++;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"\"{numberOfIterations}\" is not a number. Please type an integer.");
+                }
             }
             /*
             Console.WriteLine(string.Join(", ", Vache.getCoordinates()));
