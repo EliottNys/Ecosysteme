@@ -153,6 +153,14 @@ namespace Ecosysteme
 
         }
     }
+    abstract class Carnivore : Animal
+    {
+        public Carnivore(int[] coordinates, int walkSpeed, int runSpeed) :
+        base(coordinates, walkSpeed, runSpeed)
+        {
+
+        }
+    }
     class Meat : Entity  //created when an animal dies
     {
         //atributes
