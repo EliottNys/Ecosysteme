@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ecosysteme
 {
-    public static class Coordinates    //permet de manipuler les coordonnées
+    public static class Coordinates    //allows to handle coordinates
     {
         public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
         {
@@ -12,12 +12,12 @@ namespace Ecosysteme
         }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
-    abstract class Entity
+    abstract class Entity   //all objects that interact (organisms, meat & organic waste)
     {
         //attributes
         protected int[] coordinates;
     }
-    abstract class Organism : Entity
+    abstract class Organism : Entity    //everything that is alive
     {
         //attributes
         protected int life;
@@ -49,11 +49,11 @@ namespace Ecosysteme
             return coordinates;
         }
     }
-    class Plant : Organism
+    abstract class Plant : Organism //all plant species
     {
         //attributes
-        private int rootRadius; //how far a plant can consume organic waste
-        private int sowingRadius;   //how far new plants can appear
+        protected int rootRadius; //how far a plant can consume organic waste
+        protected int sowingRadius;   //how far new plants can appear
         //constructor
         public Plant(int[] coordinates):
         base(coordinates)
@@ -71,30 +71,28 @@ namespace Ecosysteme
             return sowingRadius;
         }
     }
-    abstract class Animal : Organism
+    abstract class Animal : Organism    //herbivores and carnivores
     {
         //attributes
-        private int sex;    //0=male, 1=female
-        private int visionRadius;
-        private int contactRadius;  //how close an animal has to be with an object to interact with it (eat, mate...)
-        private int[] direction;
-        private int walkSpeed;
-        private int runSpeed;   //used in case of hunting or fleeing
+        protected int sex;    //0=male, 1=female
+        protected int visionRadius;
+        protected int contactRadius;  //how close an animal has to be with an object to interact with it (eat, mate...)
+        protected int[] direction;
+        protected int walkSpeed;
+        protected int runSpeed;   //used in case of hunting or fleeing
         //constructor
-        public Animal(int[] coordinates, int walkSpeed, int runSpeed) :
+        public Animal(int[] coordinates) :
         base(coordinates)
         {
             Random rnd = new Random();
             sex = rnd.Next(1);
-            visionRadius = 20;
-            contactRadius = 20;
+            //visionRadius = 20;
+            //contactRadius = 20;
             direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
                 direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) };
             }
-            this.walkSpeed = walkSpeed;
-            this.runSpeed = runSpeed;
         }
         //methods
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
@@ -145,20 +143,31 @@ namespace Ecosysteme
             return runSpeed;
         }
     }
-    abstract class Herbivore : Animal
+    abstract class Herbivore : Animal   //all herbivore species
     {
-        public Herbivore(int[] coordinates, int walkSpeed, int runSpeed) :
-        base(coordinates, walkSpeed, runSpeed)
+        public Herbivore(int[] coordinates) :
+        base(coordinates)
         {
 
         }
     }
-    abstract class Carnivore : Animal
+    abstract class Carnivore : Animal   //all carnivore species
     {
-        public Carnivore(int[] coordinates, int walkSpeed, int runSpeed) :
-        base(coordinates, walkSpeed, runSpeed)
+        public Carnivore(int[] coordinates) :
+        base(coordinates)
         {
 
+        }
+    }
+    class Deer : Herbivore
+    {
+        public Deer(int[] coordinates) :
+        base(coordinates)
+        {
+            visionRadius = 30;
+            contactRadius = 5;
+            walkSpeed = 10;
+            runSpeed = 25;
         }
     }
     class Meat : Entity  //created when an animal dies
