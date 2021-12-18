@@ -4,11 +4,43 @@ using System.Runtime.Serialization;
 
 namespace Ecosysteme
 {
-    public static class Terminal
+    public static class Terminal    //To display things regularly
     {
         public static void Separate()
         {
             Console.WriteLine("______________________________________________________________");
+        }
+        public static void Entities(Entities entities)
+        {
+            Console.WriteLine(entities.Display());
+        }
+    }
+    public class Entities
+    {
+        //attributes
+        protected List<Entity> entities;
+        protected ObjectIDGenerator IDGenerator;
+        //constructor
+        public Entities()
+        {
+            entities = new List<Entity>(); //list of all entities in our biotope
+            IDGenerator = new ObjectIDGenerator();
+            //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
+        }
+        //methods
+        public string Display()
+        {
+            string text = new string("");
+            foreach (Entity entity in entities)
+            {
+                text += string.Format("id={0}, type={1}, {2}\n", IDGenerator.GetId(entity, out entity.IsFirstTime), entity.GetType().Name, entity.ToString());
+            }
+            return text;
+        }
+        public void Add(Entity entity)
+        {
+            entities.Add(entity);
+            IDGenerator.GetId(entity, out entity.IsFirstTime);
         }
     }
     public static class Coordinates    //allows to handle coordinates
@@ -20,7 +52,7 @@ namespace Ecosysteme
         }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
-    abstract class Entity   //all objects that interact (organisms, meat & organic waste)
+    public abstract class Entity   //all objects that interact (organisms, meat & organic waste)
     {
         //attributes
         protected int[] coordinates;    //position in the plane
@@ -30,7 +62,7 @@ namespace Ecosysteme
         //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString()
         {
-            return string.Format(": coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
+            return string.Format("coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
         }
         //accessors
         public int[] getCoordinates()
@@ -338,6 +370,14 @@ namespace Ecosysteme
     {
         static void Main(string[] args)
         {
+            Entities entities = new Entities();
+            Random rnd = new Random();
+            entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
+            entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
+            entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
+            Terminal.Separate();
+            Terminal.Entities(entities);
+            /*
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
             ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
             Random rnd = new Random();
@@ -375,6 +415,7 @@ namespace Ecosysteme
                     Console.WriteLine($"\"{numberOfIterations}\" is not a number. Please type an integer.");
                 }
             }
+            */
         }
     }
 }
