@@ -20,6 +20,10 @@ namespace Ecosysteme
             string numberOfIterations = Console.ReadLine();
             return numberOfIterations;
         }
+        public static void WrongIteration(string input)
+        {
+            Console.WriteLine($"\"{input}\" is not a number. Please type an integer.");
+        }
     }
     public class Entities
     {
@@ -54,6 +58,13 @@ namespace Ecosysteme
         {
             entities.Add(entity);
             IDGenerator.GetId(entity, out entity.IsFirstTime);
+        }
+        public void Iterate()
+        {
+            foreach (Entity entity in entities)
+            {
+                entity.Iterate();
+            }
         }
     }
     public static class Coordinates    //allows to handle coordinates
@@ -390,46 +401,25 @@ namespace Ecosysteme
             entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             Terminal.Entities(entities);
             Terminal.Separate();
-            Terminal.AskIterations();
-            /*
-            List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
-            ObjectIDGenerator IDGenerator = new ObjectIDGenerator();    //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
-            Random rnd = new Random();
-            Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
-            Entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
-            Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
-            foreach (Entity entity in Entities)
-            {
-                Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
-            }
-            Terminal.Separate();
             while (true)
             {
-                Console.WriteLine("How many iterations would you like to complete ?");
-                string numberOfIterations = Console.ReadLine();
+                string numberOfIterations = Terminal.AskIterations();
                 if (int.TryParse(numberOfIterations, out int iterations))
                 {
                     int iteration = 0;
                     while (iteration < iterations)
                     {
-                        foreach (Entity entity in Entities)
-                        {
-                            entity.Iterate();
-                        }
+                        entities.Iterate();
                         iteration++;
                     }
-                    foreach (Entity entity in Entities)
-                    {
-                        Console.WriteLine(string.Format("type={0}, id={1}", entity.GetType().Name, IDGenerator.GetId(entity, out entity.IsFirstTime)) + entity.ToString());
-                    }
+                    Terminal.Entities(entities);
                     Terminal.Separate();
                 }
                 else
                 {
-                    Console.WriteLine($"\"{numberOfIterations}\" is not a number. Please type an integer.");
+                    Terminal.WrongIteration(numberOfIterations);
                 }
             }
-            */
         }
     }
 }
