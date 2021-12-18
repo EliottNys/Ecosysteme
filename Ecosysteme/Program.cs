@@ -47,7 +47,7 @@ namespace Ecosysteme
         }
         public override string ToString()
         {
-            return base.ToString() + string.Format(": life={0}, energy={1}, coordinates=[{2},{3}]", life, energy, coordinates[0], coordinates[1]);
+            return base.ToString() + string.Format(", life={0}, energy={1}", life, energy);
         }
         //accessors
         public int getLife()
@@ -217,6 +217,10 @@ namespace Ecosysteme
         {
             time += 1;
         }
+        public override string ToString()
+        {
+            return base.ToString() + string.Format(", time={0}, calories={1}", time, calories);
+        }
         //accessors
         public int getTime()
         {
@@ -237,6 +241,11 @@ namespace Ecosysteme
             this.coordinates=coordinates;
             this.nutrients = nutrients;
         }
+        //methods
+        public override string ToString()
+        {
+            return base.ToString() + string.Format(", nutrients={0}", nutrients);
+        }
     }
     class Program
     {
@@ -246,6 +255,7 @@ namespace Ecosysteme
             List<Entity> Entities = new List<Entity>(); //list of all entities in our biotope
             Random rnd = new Random();
             Entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
+            Entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             foreach (Entity entity in Entities)
             {
                 Console.WriteLine(entity.ToString());
