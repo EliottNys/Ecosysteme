@@ -51,7 +51,6 @@ namespace Ecosysteme
                 {
                     return newPoint;
                 }
-                else { Console.WriteLine("bip"); }
             }
         }
     }
@@ -203,15 +202,25 @@ namespace Ecosysteme
         public override void Iterate(Entities entities, Array initialArray)
         {
             base.Iterate(entities, initialArray);
-            if (entities.random.Next(1,101)<propagationSpeed)
+            //reproduction
+            int[] reproduce = this.DetermineReproduction(entities);
+            if (reproduce != null)
+            {
+                entities.Add(this.Reproduce(reproduce));
+            }
+            //behavior unique to plants
+        }
+        private int[] DetermineReproduction(Entities entities) //checks 2 things : probability and whether or not the point is free for a new plant
+        {
+            if (entities.random.Next(1, 101) < propagationSpeed)
             {
                 int[] newCoordinates = Coordinates.CloseBy(coordinates, sowingRadius, entities.random);
                 if (entities.NoPlant(newCoordinates))
                 {
-                    entities.Add(this.Reproduce(newCoordinates));
+                    return newCoordinates;
                 }
             }
-            //behavior unique to plants
+            return null;
         }
         //accessors
         public int getRootRadius()
@@ -384,8 +393,8 @@ namespace Ecosysteme
         base(coordinates)
         {
             rootRadius = 10;
-            sowingRadius = 2;
-            propagationSpeed = 50;
+            sowingRadius = 30;
+            propagationSpeed = 10;
         }
         //methods
         public override Entity Reproduce(int[] newCoordinates)
