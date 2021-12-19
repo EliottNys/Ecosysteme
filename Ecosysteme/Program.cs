@@ -90,12 +90,16 @@ namespace Ecosysteme
             entities.Add(entity);
             IDGenerator.GetId(entity, out entity.IsFirstTime);
         }
+        public void Remove(Entity entity)   //note: the object is removed from the object "entities", but does it still use resources / exist ?
+        {
+            entities.Remove(entity);
+        }
         public void Iterate()
         {
             Array initialArray = entities.ToArray();
             foreach (Entity entity in initialArray)
             {
-                entity.Iterate(this, initialArray);   //note : maybe it would be better to also pass entities.ToArray() so 
+                entity.Iterate(this, initialArray);
             }
         }
         public bool NoPlant(int[] newCoordinates)  //checks if there is not yet a plant on at these coordinates
@@ -145,22 +149,27 @@ namespace Ecosysteme
         //methods
         public override void Iterate(Entities entities, Array initialArray)
         {
-            this.IterateEnergy(1);
+            if (this.IterateEnergy(1))
+            {
+                entities.Remove(this);
+            }
         }
-        public void IterateEnergy(int amount)
+        public bool IterateEnergy(int amount)
         {
             if (energy > amount)
             {
                 this.Fatigue(amount);
+                return false;
             }
             else if (life > amount-energy)
             {
                 this.ConvertEnergy(amount-energy);
                 this.Fatigue(amount);
+                return false;
             }
             else
             {
-                //renvoyer au programme de supprimer l'instance = mourir
+                return true;
             }
         }
         public void Fatigue(int amount) //an organism loses energy over time ; when an animal walks or runs, it loses energy
@@ -393,8 +402,8 @@ namespace Ecosysteme
         base(coordinates)
         {
             rootRadius = 10;
-            sowingRadius = 30;
-            propagationSpeed = 10;
+            sowingRadius = 25;
+            propagationSpeed = 3;
         }
         //methods
         public override Entity Reproduce(int[] newCoordinates)
