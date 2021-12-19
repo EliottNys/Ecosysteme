@@ -155,16 +155,20 @@ namespace Ecosysteme
         //methods
         public override void Iterate(Entities entities, Array initialArray)
         {
-            if (this.IterateEnergy(1))
+            if (this.IterateEnergyAndLife(1))
             {
                 this.Transform(entities);
             }
         }
-        public bool IterateEnergy(int amount)
+        public bool IterateEnergyAndLife(int amount)
         {
             if (energy > amount)
             {
                 this.Fatigue(amount);
+                if (life < 100 && energy >= 80)
+                {
+                    life += amount;
+                }
                 return false;
             }
             else if (life > amount-energy)
@@ -259,15 +263,8 @@ namespace Ecosysteme
         {
             if (food != null)
             {
-                int emptyLife = 100 - life;
                 int emptyEnergy = 100 - energy;
                 int nutrients = food.getNutrients();
-                while (emptyLife > 0 && nutrients > 0)
-                {
-                    emptyLife--;
-                    life++;
-                    nutrients--;
-                }
                 while (emptyEnergy > 0 && nutrients > 0)
                 {
                     emptyEnergy--;
