@@ -13,8 +13,9 @@ namespace Ecosysteme
         public static void Entities(Entities entities)
         {
             Console.WriteLine(entities.Display());
+            Terminal.Separate();
         }
-        public static int AskIterations()   //asks the user to input how many iterations they would like the program to complete. If the user does not type an int, he is asked again.
+        public static int AskIterations()   //asks the user to input how many iterations they would like the program to complete. If the user does not type an int, (s)he is asked again until (s)he does.
         {
 
             Console.WriteLine("How many iterations would you like to complete ?");
@@ -26,7 +27,7 @@ namespace Ecosysteme
             Terminal.WrongIteration(numberOfIterations);
             return AskIterations();
         }
-        public static void WrongIteration(string input)
+        private static void WrongIteration(string input)
         {
             Console.WriteLine($"\"{input}\" is not a number. Please type an integer.");
         }
@@ -69,7 +70,7 @@ namespace Ecosysteme
         {
             foreach (Entity entity in entities)
             {
-                entity.Iterate();
+                entities = entity.Iterate(entities);
             }
         }
     }
@@ -88,7 +89,7 @@ namespace Ecosysteme
         protected int[] coordinates;    //position in the plane
         public bool IsFirstTime;    //needed for the ID generator (public so the generator can modify it)
         //methods
-        abstract public void Iterate(); //what happens to the entity or what the entity does at each iteration
+        abstract public List<Entity> Iterate(List<Entity> entities); //what happens to the entity or what the entity does at each iteration
         //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString()
         {
@@ -113,9 +114,10 @@ namespace Ecosysteme
             this.coordinates = coordinates;
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
             this.IterateEnergy(1);
+            return entities;
         }
         public void IterateEnergy(int amount)
         {
@@ -169,9 +171,10 @@ namespace Ecosysteme
             
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
-            base.Iterate();
+            base.Iterate(entities);
+            return entities;
             //behavior unique to plants
         }
         //accessors
@@ -214,9 +217,10 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
-            base.Iterate();
+            base.Iterate(entities);
+            return entities;
             // behavior unique to animals
         }
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
@@ -285,9 +289,10 @@ namespace Ecosysteme
 
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
-            base.Iterate();
+            base.Iterate(entities);
+            return entities;
             //behavior unique to herbivores
         }
     }
@@ -299,9 +304,10 @@ namespace Ecosysteme
         {
 
         }
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
-            base.Iterate();
+            base.Iterate(entities);
+            return entities;
             //behavior unique to carnivores
         }
     }
@@ -351,12 +357,13 @@ namespace Ecosysteme
             time = 0;
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
             if (time<20)
             {
                 this.Rot();
             }
+            return entities;
         }
         public void Rot()
         {
@@ -387,9 +394,9 @@ namespace Ecosysteme
             this.nutrients = nutrients;
         }
         //methods
-        public override void Iterate()
+        public override List<Entity> Iterate(List<Entity> entities)
         {
-            ;
+            return entities;
         }
         public override string ToString()
         {
@@ -406,7 +413,6 @@ namespace Ecosysteme
             entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
             entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
             Terminal.Entities(entities);
-            Terminal.Separate();
             while (true)
             {
                 int numberOfIterations = Terminal.AskIterations();
@@ -414,8 +420,8 @@ namespace Ecosysteme
                 {
                     entities.Iterate();
                 }
-                Terminal.Entities(entities);
                 Terminal.Separate();
+                Terminal.Entities(entities);
             }
         }
     }
