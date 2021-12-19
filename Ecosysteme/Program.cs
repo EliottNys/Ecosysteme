@@ -43,7 +43,7 @@ namespace Ecosysteme
         }
         public static int[] CloseBy(int[] coordinates, int radius, Random random)   //returns coordinates that are within the radius of the original coordinates
         {
-            while(true)
+            while (true)
             {
                 int[] shift = new[] { random.Next(-radius, radius), random.Next(-radius, radius) };
                 int[] newPoint = coordinates.Zip(shift, (x, y) => x + y).ToArray();
@@ -51,6 +51,35 @@ namespace Ecosysteme
                 {
                     return newPoint;
                 }
+            }
+        }
+        public static int[] Direction(int[] departure, int[] destination)   //gives the direction you need to take to go from departure-point to destination-point
+        {
+            int[] vector = destination.Zip(departure, (x, y) => x - y).ToArray();
+            int sinus = (int)Math.Round((double)(1000 * (vector[1] / vector[0])));
+            if (vector[0] > 0 && vector[1] > 0) //1st quadrant
+            {
+                if (sinus > 924) { return new int[] { 0, 1 }; } //N
+                else if (sinus < 383) { return new int[] { 1, 0 }; }    //E
+                else { return new int[] { 1, 1 }; } //NE
+            }
+            else if (vector[0] > 0 && vector[1] < 0) //2nd quadrant
+            {
+                if (sinus > -383) { return new int[] { 1, 0 }; }    //E
+                else if (sinus < -924) { return new int[] { 0, -1 }; }  //S
+                else { return new int[] { 1, -1 }; }    //SE
+            }
+            else if (vector[0] < 0 && vector[1] < 0) //3rd quadrant
+            {
+                if (sinus < -924) { return new int[] { 0, -1 }; }  //S
+                else if (sinus > -383) { return new int[] { -1, 0 }; } //W
+                else { return new int[] { -1, -1 }; }   //SW
+            }
+            else  //4th quadrant
+            {
+                if (sinus < 383) { return new int[] { -1, 0 }; }    //W
+                else if (sinus > 924) { return new int[] { 0, 1 }; }    //N
+                else { return new int[] { -1, 1 }; }    //NW
             }
         }
     }
@@ -114,10 +143,7 @@ namespace Ecosysteme
             return true;
         }
         //accessors
-        public List<Entity> getList()
-        {
-            return entities;
-        }
+        public List<Entity> getList() { return entities; }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
     public abstract class Entity   //all objects that interact (organisms, meat & organic waste)
@@ -135,10 +161,7 @@ namespace Ecosysteme
         abstract public Entity Reproduce(int[] coordinates);
         abstract public void Transform(Entities entities);
         //accessors
-        public int[] getCoordinates()
-        {
-            return coordinates;
-        }
+        public int[] getCoordinates() { return coordinates; }
     }
     abstract class Organism : Entity    //everything that is alive
     {
@@ -165,7 +188,7 @@ namespace Ecosysteme
             if (energy > amount)
             {
                 this.Fatigue(amount);
-                if (life < 100 && energy >= 80)
+                if (life < 100 && energy >= 80) //if an organism has over 80% energy, his health regenerates over time
                 {
                     life += amount;
                 }
@@ -208,14 +231,8 @@ namespace Ecosysteme
             return base.ToString() + string.Format(", life={0}, energy={1}", life, energy);
         }
         //accessors
-        public int getLife()
-        {
-            return life;
-        }
-        public int getEnergy()
-        {
-            return energy;
-        }
+        public int getLife() { return life; }
+        public int getEnergy() { return energy; }
     }
     abstract class Plant : Organism //all plant species
     {
@@ -232,7 +249,7 @@ namespace Ecosysteme
         //methods
         public override void Iterate(Entities entities, Array initialArray)
         {
-            //losing of energy
+            //losing/regenerating of energy/life
             base.Iterate(entities, initialArray);
             //feeding
             OrganicWaste food = this.FindOrganicWaste(entities);
@@ -294,18 +311,9 @@ namespace Ecosysteme
             return null;
         }
         //accessors
-        public int getRootRadius()
-        {
-            return rootRadius;
-        }
-        public int getSowingRadius()
-        {
-            return sowingRadius;
-        }
-        public int getPropagationSpeed()
-        {
-            return propagationSpeed;
-        }
+        public int getRootRadius() { return rootRadius; }
+        public int getSowingRadius() { return sowingRadius; }
+        public int getPropagationSpeed() { return propagationSpeed; }
     }
     abstract class Animal : Organism    //herbivores and carnivores
     {
@@ -335,18 +343,29 @@ namespace Ecosysteme
         //methods
         public override void Iterate(Entities entities, Array initialArray)
         {
+            //losing/regenerating of energy/life
             base.Iterate(entities, initialArray);
-            // behavior unique to animals
         }
-        public void Walk()  //moves the animal in the habitat (distance=f(speed))
+        public void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
         {
-            coordinates[0] += direction[0] * walkSpeed;
-            coordinates[1] += direction[1] * walkSpeed;
+            if (direction.Sum() == 1 || direction.Sum() == -1)
+            {
+                coordinates[0] += direction[0] * speed;
+                coordinates[1] += direction[1] * speed;
+            }
+            else
+            {
+                coordinates[0] -= (int)Math.Ceiling(direction[0] * speed * 0.7);
+                coordinates[1] -= (int)Math.Ceiling(direction[1] * speed * 0.7);
+            }
+        }
+        public void Walk()
+        {
+            this.Move(walkSpeed);
         }
         public void Run()
         {
-            coordinates[0] += direction[0] * runSpeed;
-            coordinates[1] += direction[1] * runSpeed;
+            this.Move(runSpeed);
         }
         public void ChangeDirection(int[] direction)
         {
@@ -370,30 +389,13 @@ namespace Ecosysteme
             }
         }
         //accessors
-        public int getSex()
-        {
-            return sex;
-        }
-        public int getVisionRadius()
-        {
-            return visionRadius;
-        }
-        public int getContactRadius()
-        {
-            return contactRadius;
-        }
-        public int[] getDirection()
-        {
-            return direction;
-        }
-        public int getWalkSpeed()
-        {
-            return walkSpeed;
-        }
-        public int getRunSpeed()
-        {
-            return runSpeed;
-        }
+        public int getSex() { return sex; }
+        public int getVisionRadius() { return visionRadius; }
+        public int getContactRadius() { return contactRadius; }
+        public int[] getDirection() { return direction; }
+        public int getWalkSpeed() { return walkSpeed; }
+        public int getRunSpeed() { return runSpeed; }
+        public bool getPregnant() { return pregnant; }
     }
     abstract class Herbivore : Animal   //all herbivore species
     {
@@ -407,7 +409,56 @@ namespace Ecosysteme
         public override void Iterate(Entities entities, Array initialArray)
         {
             base.Iterate(entities, initialArray);
-            //behavior unique to herbivores
+            Plant food = FindFood(entities);
+            
+            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
+            {
+                Herbivore mate = FindMate(entities);
+                if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius)
+                {
+                    //mate
+                }
+                else
+                {
+                    this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
+                    this.Walk();
+                }
+            }
+            else    //food is a priority / already pregnant
+            {
+                //eat / go to food
+            }
+        }
+        private Plant FindFood(Entities entities)
+        {
+            Plant response = null;
+            int distance = 10000;
+            foreach (Entity entity in entities.getList())
+            {
+                if (entity.GetType() == typeof(Plant) && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                {
+                    response = (Plant)entity;
+                    distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                }
+            }
+            return response;
+        }
+        private Herbivore FindMate(Entities entities)
+        {
+            Herbivore response = null;
+            int distance = 10000;
+            foreach (Entity entity in entities.getList())
+            {
+                if (entity.GetType() == this.GetType() && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                {
+                    if (sex != ((Herbivore)entity).getSex() && !((Herbivore)entity).getPregnant())  //not same sex and not yet pregnant
+                    {
+                        response = (Herbivore)entity;
+                        distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                    }
+                }
+            }
+            return response;
         }
     }
     abstract class Carnivore : Animal   //all carnivore species
@@ -515,14 +566,8 @@ namespace Ecosysteme
             entities.Remove(this);
         }
         //accessors
-        public int getTime()
-        {
-            return time;
-        }
-        public int getCalories()
-        {
-            return calories;
-        }
+        public int getTime() { return time; }
+        public int getCalories() { return calories; }
     }
     class OrganicWaste : Entity  //created when a plant dies, meat rots or an animal poops
     {
@@ -556,10 +601,7 @@ namespace Ecosysteme
             ;   //Organic waste does not transform
         }
         //accessors
-        public int getNutrients()
-        {
-            return nutrients;
-        }
+        public int getNutrients() { return nutrients; }
     }
     class Program
     {
