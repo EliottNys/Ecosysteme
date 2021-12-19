@@ -133,6 +133,7 @@ namespace Ecosysteme
             return string.Format("coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
         }
         abstract public Entity Reproduce(int[] coordinates);
+        abstract public void Transform(Entities entities);
         //accessors
         public int[] getCoordinates()
         {
@@ -156,7 +157,7 @@ namespace Ecosysteme
         {
             if (this.IterateEnergy(1))
             {
-                entities.Remove(this);
+                this.Transform(entities);
             }
         }
         public bool IterateEnergy(int amount)
@@ -176,6 +177,18 @@ namespace Ecosysteme
             {
                 return true;
             }
+        }
+        public override void Transform(Entities entities)
+        {
+            if (this.GetType().IsSubclassOf(typeof(Plant))) //organism is plant
+            {
+                entities.Add(new OrganicWaste(coordinates, 20));    //turn into organic waste
+            }
+            else  //organism is animal
+            {
+                entities.Add(new Meat(coordinates, 20));
+            }
+            entities.Remove(this);
         }
         public void Fatigue(int amount) //an organism loses energy over time ; when an animal walks or runs, it loses energy
         {
@@ -482,6 +495,10 @@ namespace Ecosysteme
             {
                 this.Rot();
             }
+            else
+            {
+                this.Transform(entities);
+            }
         }
         public override Entity Reproduce(int[] coordinates)
         {
@@ -494,6 +511,11 @@ namespace Ecosysteme
         public override string ToString()
         {
             return base.ToString() + string.Format(", time={0}, calories={1}", time, calories);
+        }
+        public override void Transform(Entities entities)
+        {
+            entities.Add(new OrganicWaste(coordinates, 20));    //turn into organic waste
+            entities.Remove(this);
         }
         //accessors
         public int getTime()
@@ -532,6 +554,10 @@ namespace Ecosysteme
         {
             nutrients = leftover;
         }
+        public override void Transform(Entities entities)
+        {
+            ;   //Organic waste does not transform
+        }
         //accessors
         public int getNutrients()
         {
@@ -547,6 +573,7 @@ namespace Ecosysteme
             entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
             entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
+            entities.Add(new Deer(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
             Terminal.Entities(entities);
             while (true)
             {
