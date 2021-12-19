@@ -36,12 +36,12 @@ namespace Ecosysteme
     public static class Coordinates    //allows to handle coordinates, probabilities ...
     {
         //methods
-        public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
+        public static int Distance(int[] firstCoordinates, int[] secondCoordinates)     //calculates the distance between two points (rounded up)
         {
             return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2) + Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2)));
             //N.B.: I use Math.Ceiling to always round UP
         }
-        public static int[] CloseBy(int[] coordinates, int radius, Random random)
+        public static int[] CloseBy(int[] coordinates, int radius, Random random)   //returns coordinates that are within the radius of the original coordinates
         {
             while(true)
             {
@@ -193,7 +193,6 @@ namespace Ecosysteme
             base.Iterate(entities);
             if (entities.random.Next(1,101)<propagationSpeed)
             {
-                //entities.Add(new this.GetType().Name(int[]));
                 entities.Add(this.Reproduce(Coordinates.CloseBy(coordinates, sowingRadius, entities.random)));
             }
             //behavior unique to plants
