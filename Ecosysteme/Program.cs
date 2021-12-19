@@ -38,7 +38,7 @@ namespace Ecosysteme
         //methods
         public static int Distance(int[] firstCoordinates, int[] secondCoordinates)     //calculates the distance between two points (rounded up)
         {
-            return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2) + Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2)));
+            return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2) + Math.Pow(firstCoordinates[1] - secondCoordinates[1], 2)));
             //N.B.: I use Math.Ceiling to always round UP
         }
         public static int[] CloseBy(int[] coordinates, int radius, Random random)   //returns coordinates that are within the radius of the original coordinates
@@ -47,10 +47,11 @@ namespace Ecosysteme
             {
                 int[] shift = new[] { random.Next(-radius, radius), random.Next(-radius, radius) };
                 int[] newPoint = coordinates.Zip(shift, (x, y) => x + y).ToArray();
-                if (Coordinates.Distance(coordinates, newPoint) < radius)   //if the horizontal and vertical shift are both smaller than the radius, the point could still be outside the radius
+                if (Coordinates.Distance(coordinates, newPoint) <= radius)   //if the horizontal and vertical shift are both smaller than the radius, the point could still be outside the radius
                 {
                     return newPoint;
                 }
+                else { Console.WriteLine("bip"); }
             }
         }
     }
@@ -78,7 +79,7 @@ namespace Ecosysteme
             }
             if (text.Length > 3)
             {
-                return text.Remove(text.Length - 1, 1);
+                return text.Remove(text.Length - 1, 1); //remove last new line
             }
             else
             {
@@ -92,11 +93,22 @@ namespace Ecosysteme
         }
         public void Iterate()
         {
-            foreach (Entity entity in entities.ToArray())
+            Array initialArray = entities.ToArray();
+            foreach (Entity entity in initialArray)
             {
-                entity.Iterate(this);
-                //Three numbers are passed along to handle probabilities (this way, I only have one Random instead of one for each instance of Entity)
+                entity.Iterate(this, initialArray);   //note : maybe it would be better to also pass entities.ToArray() so 
             }
+        }
+        public bool NoPlant(int[] newCoordinates)  //checks if there is not yet a plant on at these coordinates
+        {
+            foreach (Entity entity in entities)
+            {
+                if (entity.getCoordinates().SequenceEqual(newCoordinates) && entity.GetType().IsSubclassOf(typeof(Plant)))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
@@ -106,7 +118,7 @@ namespace Ecosysteme
         protected int[] coordinates;    //position in the plane
         public bool IsFirstTime;    //needed for the ID generator (public so the generator can modify it)
         //methods
-        abstract public void Iterate(Entities entities); //what happens to the entity or what the entity does at each iteration
+        abstract public void Iterate(Entities entities, Array initialArray); //what happens to the entity or what the entity does at each iteration
         //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString()
         {
@@ -132,7 +144,7 @@ namespace Ecosysteme
             this.coordinates = coordinates;
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
             this.IterateEnergy(1);
         }
@@ -188,12 +200,16 @@ namespace Ecosysteme
             
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
-            base.Iterate(entities);
+            base.Iterate(entities, initialArray);
             if (entities.random.Next(1,101)<propagationSpeed)
             {
-                entities.Add(this.Reproduce(Coordinates.CloseBy(coordinates, sowingRadius, entities.random)));
+                int[] newCoordinates = Coordinates.CloseBy(coordinates, sowingRadius, entities.random);
+                if (entities.NoPlant(newCoordinates))
+                {
+                    entities.Add(this.Reproduce(newCoordinates));
+                }
             }
             //behavior unique to plants
         }
@@ -237,9 +253,9 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
-            base.Iterate(entities);
+            base.Iterate(entities, initialArray);
             // behavior unique to animals
         }
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
@@ -308,9 +324,9 @@ namespace Ecosysteme
 
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
-            base.Iterate(entities);
+            base.Iterate(entities, initialArray);
             //behavior unique to herbivores
         }
     }
@@ -323,9 +339,9 @@ namespace Ecosysteme
 
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
-            base.Iterate(entities);
+            base.Iterate(entities, initialArray);
             //behavior unique to carnivores
         }
     }
@@ -368,13 +384,13 @@ namespace Ecosysteme
         base(coordinates)
         {
             rootRadius = 10;
-            sowingRadius = 30;
-            propagationSpeed = 5;
+            sowingRadius = 2;
+            propagationSpeed = 50;
         }
         //methods
-        public override Entity Reproduce(int[] coordinates)
+        public override Entity Reproduce(int[] newCoordinates)
         {
-            return new Grass(coordinates);
+            return new Grass(newCoordinates);
         }
     }
     class Meat : Entity  //created when an animal dies
@@ -390,7 +406,7 @@ namespace Ecosysteme
             time = 0;
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
             if (time<20)
             {
@@ -430,7 +446,7 @@ namespace Ecosysteme
             this.nutrients = nutrients;
         }
         //methods
-        public override void Iterate(Entities entities)
+        public override void Iterate(Entities entities, Array initialArray)
         {
             ;
         }
