@@ -113,6 +113,11 @@ namespace Ecosysteme
             }
             return true;
         }
+        //accessors
+        public List<Entity> getList()
+        {
+            return entities;
+        }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
     public abstract class Entity   //all objects that interact (organisms, meat & organic waste)
@@ -205,12 +210,16 @@ namespace Ecosysteme
         public Plant(int[] coordinates):
         base(coordinates)
         {
-            
+            ;
         }
         //methods
         public override void Iterate(Entities entities, Array initialArray)
         {
+            //losing of energy
             base.Iterate(entities, initialArray);
+            //feeding
+            OrganicWaste food = this.FindOrganicWaste(entities);
+            this.Consume(food, entities);
             //reproduction
             int[] reproduce = this.DetermineReproduction(entities);
             if (reproduce != null)
@@ -218,6 +227,49 @@ namespace Ecosysteme
                 entities.Add(this.Reproduce(reproduce));
             }
             //behavior unique to plants
+        }
+        private OrganicWaste FindOrganicWaste(Entities entities)
+        {
+            OrganicWaste response = null;
+            int distance = 10000;
+            foreach (Entity entity in entities.getList())
+            {
+                if (entity.GetType() == typeof(OrganicWaste) && Coordinates.Distance(coordinates, entity.getCoordinates()) < rootRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                {
+                    response = (OrganicWaste)entity;
+                    distance = Coordinates.Distance(coordinates,entity.getCoordinates());
+                }
+            }
+            return response;
+        }
+        private void Consume(OrganicWaste food, Entities entities)
+        {
+            if (food != null)
+            {
+                int emptyLife = 100 - life;
+                int emptyEnergy = 100 - energy;
+                int nutrients = food.getNutrients();
+                while (emptyLife > 0 && nutrients > 0)
+                {
+                    emptyLife--;
+                    life++;
+                    nutrients--;
+                }
+                while (emptyEnergy > 0 && nutrients > 0)
+                {
+                    emptyEnergy--;
+                    energy++;
+                    nutrients--;
+                }
+                if (nutrients == 0)
+                {
+                    entities.Remove(food);
+                }
+                else
+                {
+                    food.Leave(nutrients);
+                }
+            }
         }
         private int[] DetermineReproduction(Entities entities) //checks 2 things : probability and whether or not the point is free for a new plant
         {
@@ -401,7 +453,7 @@ namespace Ecosysteme
         public Grass(int[] coordinates) :
         base(coordinates)
         {
-            rootRadius = 10;
+            rootRadius = 100;
             sowingRadius = 25;
             propagationSpeed = 3;
         }
@@ -475,6 +527,15 @@ namespace Ecosysteme
         public override Entity Reproduce(int[] coordinates)
         {
             return new OrganicWaste(coordinates, nutrients);
+        }
+        public void Leave(int leftover)
+        {
+            nutrients = leftover;
+        }
+        //accessors
+        public int getNutrients()
+        {
+            return nutrients;
         }
     }
     class Program
