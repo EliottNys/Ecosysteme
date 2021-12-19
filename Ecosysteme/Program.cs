@@ -14,11 +14,17 @@ namespace Ecosysteme
         {
             Console.WriteLine(entities.Display());
         }
-        public static string AskIterations()
+        public static int AskIterations()   //asks the user to input how many iterations they would like the program to complete. If the user does not type an int, he is asked again.
         {
+
             Console.WriteLine("How many iterations would you like to complete ?");
             string numberOfIterations = Console.ReadLine();
-            return numberOfIterations;
+            if (int.TryParse(numberOfIterations, out int iterations))
+            {
+                return iterations;
+            }
+            Terminal.WrongIteration(numberOfIterations);
+            return AskIterations();
         }
         public static void WrongIteration(string input)
         {
@@ -403,22 +409,13 @@ namespace Ecosysteme
             Terminal.Separate();
             while (true)
             {
-                string numberOfIterations = Terminal.AskIterations();
-                if (int.TryParse(numberOfIterations, out int iterations))
+                int numberOfIterations = Terminal.AskIterations();
+                for (int iteration=0; iteration < numberOfIterations; iteration++)
                 {
-                    int iteration = 0;
-                    while (iteration < iterations)
-                    {
-                        entities.Iterate();
-                        iteration++;
-                    }
-                    Terminal.Entities(entities);
-                    Terminal.Separate();
+                    entities.Iterate();
                 }
-                else
-                {
-                    Terminal.WrongIteration(numberOfIterations);
-                }
+                Terminal.Entities(entities);
+                Terminal.Separate();
             }
         }
     }
