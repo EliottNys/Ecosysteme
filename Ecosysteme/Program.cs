@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace Ecosysteme
 {
-    public static class Terminal    //To display things regularly
+    public static class Terminal    //for information that needs to be displayed regularly
     {
         public static void Separate()
         {
@@ -32,16 +33,39 @@ namespace Ecosysteme
             Console.WriteLine($"\"{input}\" is not a number. Please type an integer.");
         }
     }
+    public static class Coordinates    //allows to handle coordinates, probabilities ...
+    {
+        //methods
+        public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
+        {
+            return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2) + Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2)));
+            //N.B.: I use Math.Ceiling to always round UP
+        }
+        public static int[] CloseBy(int[] coordinates, int radius, Random random)
+        {
+            while(true)
+            {
+                int[] shift = new[] { random.Next(-radius, radius), random.Next(-radius, radius) };
+                int[] newPoint = coordinates.Zip(shift, (x, y) => x + y).ToArray();
+                if (Coordinates.Distance(coordinates, newPoint) < radius)   //if the horizontal and vertical shift are both smaller than the radius, the point could still be outside the radius
+                {
+                    return newPoint;
+                }
+            }
+        }
+    }
     public class Entities
     {
         //attributes
         protected List<Entity> entities;
         protected ObjectIDGenerator IDGenerator;
+        public Random random;
         //constructor
         public Entities()
         {
             entities = new List<Entity>(); //list of all entities in our biotope
             IDGenerator = new ObjectIDGenerator();
+            random = new Random();
             //allows to assign a unique ID to each object for easy recognizing (not necessary for the code, but practical when tracking a certain entity)
         }
         //methods
@@ -68,18 +92,11 @@ namespace Ecosysteme
         }
         public void Iterate()
         {
-            foreach (Entity entity in entities)
+            foreach (Entity entity in entities.ToArray())
             {
-                entities = entity.Iterate(entities);
+                entity.Iterate(this);
+                //Three numbers are passed along to handle probabilities (this way, I only have one Random instead of one for each instance of Entity)
             }
-        }
-    }
-    public static class Coordinates    //allows to handle coordinates
-    {
-        public static int Distance(int[] firstCoordinates, int[] secondCoordinates)
-        {
-            return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0],2) + Math.Pow(firstCoordinates[0] - secondCoordinates[0],2)));
-            //N.B.: I use Math.Ceiling to always round UP
         }
     }
     //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
@@ -89,12 +106,13 @@ namespace Ecosysteme
         protected int[] coordinates;    //position in the plane
         public bool IsFirstTime;    //needed for the ID generator (public so the generator can modify it)
         //methods
-        abstract public List<Entity> Iterate(List<Entity> entities); //what happens to the entity or what the entity does at each iteration
+        abstract public void Iterate(Entities entities); //what happens to the entity or what the entity does at each iteration
         //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString()
         {
             return string.Format("coordinates=[{0},{1}]", coordinates[0], coordinates[1]);
         }
+        abstract public Entity Reproduce(int[] coordinates);
         //accessors
         public int[] getCoordinates()
         {
@@ -114,10 +132,9 @@ namespace Ecosysteme
             this.coordinates = coordinates;
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
             this.IterateEnergy(1);
-            return entities;
         }
         public void IterateEnergy(int amount)
         {
@@ -171,10 +188,14 @@ namespace Ecosysteme
             
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
             base.Iterate(entities);
-            return entities;
+            if (entities.random.Next(1,101)<propagationSpeed)
+            {
+                //entities.Add(new this.GetType().Name(int[]));
+                entities.Add(this.Reproduce(Coordinates.CloseBy(coordinates, sowingRadius, entities.random)));
+            }
             //behavior unique to plants
         }
         //accessors
@@ -217,10 +238,9 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
             base.Iterate(entities);
-            return entities;
             // behavior unique to animals
         }
         public void Walk()  //moves the animal in the habitat (distance=f(speed))
@@ -289,10 +309,9 @@ namespace Ecosysteme
 
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
             base.Iterate(entities);
-            return entities;
             //behavior unique to herbivores
         }
     }
@@ -304,10 +323,10 @@ namespace Ecosysteme
         {
 
         }
-        public override List<Entity> Iterate(List<Entity> entities)
+        //methods
+        public override void Iterate(Entities entities)
         {
             base.Iterate(entities);
-            return entities;
             //behavior unique to carnivores
         }
     }
@@ -321,6 +340,11 @@ namespace Ecosysteme
             walkSpeed = 10;
             runSpeed = 25;
         }
+        //methods
+        public override Entity Reproduce(int[] coordinates)
+        {
+            return new Deer(coordinates);
+        }
     }
     class Wolf : Carnivore
     {
@@ -332,6 +356,11 @@ namespace Ecosysteme
             walkSpeed = 10;
             runSpeed = 40;
         }
+        //methods
+        public override Entity Reproduce(int[] coordinates)
+        {
+            return new Wolf(coordinates);
+        }
     }
     class Grass : Plant
     {
@@ -341,7 +370,12 @@ namespace Ecosysteme
         {
             rootRadius = 10;
             sowingRadius = 30;
-            propagationSpeed = 20;
+            propagationSpeed = 5;
+        }
+        //methods
+        public override Entity Reproduce(int[] coordinates)
+        {
+            return new Grass(coordinates);
         }
     }
     class Meat : Entity  //created when an animal dies
@@ -357,13 +391,16 @@ namespace Ecosysteme
             time = 0;
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
             if (time<20)
             {
                 this.Rot();
             }
-            return entities;
+        }
+        public override Entity Reproduce(int[] coordinates)
+        {
+            return new Meat(coordinates, calories);
         }
         public void Rot()
         {
@@ -394,13 +431,17 @@ namespace Ecosysteme
             this.nutrients = nutrients;
         }
         //methods
-        public override List<Entity> Iterate(List<Entity> entities)
+        public override void Iterate(Entities entities)
         {
-            return entities;
+            ;
         }
         public override string ToString()
         {
             return base.ToString() + string.Format(", nutrients={0}", nutrients);
+        }
+        public override Entity Reproduce(int[] coordinates)
+        {
+            return new OrganicWaste(coordinates, nutrients);
         }
     }
     class Program
