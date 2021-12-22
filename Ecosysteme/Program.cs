@@ -223,6 +223,7 @@ namespace Ecosysteme
         protected int rootRadius; //how far a plant can consume organic waste
         protected int sowingRadius;   //how far new plants can appear
         protected int propagationSpeed; //how frequently a plant sows
+        protected int calories;
         //CONSTRUCTOR
         public Plant(int[] coordinates):
         base(coordinates)
@@ -293,10 +294,12 @@ namespace Ecosysteme
             }
             return null;
         }
+        public void Leave(int amount) { calories = amount; }
         //ACCESSORS
         public int getRootRadius() { return rootRadius; }
         public int getSowingRadius() { return sowingRadius; }
         public int getPropagationSpeed() { return propagationSpeed; }
+        public int getCalories() { return calories; }
     }
     abstract class Animal : Organism    //herbivores and carnivores
     {
@@ -310,6 +313,7 @@ namespace Ecosysteme
         protected bool pregnant;
         protected int pregnantTime;
         protected int gestationPeriod;
+        protected int damage;
         //CONSTRUCTOR
         public Animal(int[] coordinates) :
         base(coordinates)
@@ -435,33 +439,65 @@ namespace Ecosysteme
             }
             else if (food.GetType() != typeof(Animal))  //eat food
             {
-                //eat
+                if (food.GetType() == typeof(Meat))
+                {
+                    Meat meat = (Meat)food;
+                    this.EatMeat(entities, meat);
+                }
+                else
+                {
+                    Plant plant = (Plant)food;
+                    this.EatPlant(entities, plant);
+                }
             }
             else  //kill food
             {
-                //kill
+                Animal prey = (Animal)food;
+                prey.Damage(25);
             }
-            /*
+        }
+        protected void EatPlant(Entities entities, Plant plant)
+        {
             int emptyEnergy = 100 - energy;
-            int nutrients = food.getNutrients();
-            while (emptyEnergy > 0 && nutrients > 0)
+            int calories = plant.getCalories();
+            while (emptyEnergy > 0 && calories > 0)
             {
                 emptyEnergy--;
                 energy++;
-                nutrients--;
+                calories--;
             }
-            if (nutrients == 0)
+            if (calories == 0)
             {
-                entities.Remove(food);
+                entities.Remove(plant);
             }
             else
             {
-                food.Leave(nutrients);
+                plant.Leave(calories);
             }
-            */
-            //if loin => déplacement
-            //else if viande / plante => manger
-            //else tuer
+        }
+        protected void Damage(int amount)
+        {
+            if (life < amount) { life = 0; }
+            else { life -= amount; }
+        }
+        protected void EatMeat(Entities entities, Meat meat)
+        {
+            int emptyEnergy = 100 - energy;
+            int calories = meat.getCalories();
+            while (emptyEnergy > 0 && calories > 0)
+            {
+                emptyEnergy--;
+                energy++;
+                calories--;
+            }
+            if (calories == 0)
+            {
+                entities.Remove(meat);
+            }
+            else
+            {
+                meat.Leave(calories);
+            }
         }
         //ACCESSORS
         public int getSex() { return sex; }
@@ -572,6 +608,7 @@ namespace Ecosysteme
             rootRadius = 100;
             sowingRadius = 25;
             propagationSpeed = 3;
+            calories = 30;
         }
         //METHODS
         protected override Organism Reproduce(int[] newCoordinates) { return new Grass(newCoordinates); }
@@ -601,6 +638,7 @@ namespace Ecosysteme
             entities.Add(new OrganicWaste(coordinates, 20));    //turn into organic waste
             entities.Remove(this);
         }
+        public void Leave(int amount) { calories = amount; }
         //ACCESSORS
         public int getTime() { return time; }
         public int getCalories() { return calories; }
