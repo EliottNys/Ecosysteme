@@ -119,7 +119,7 @@ namespace Ecosysteme
             Array initialArray = entities.ToArray();
             foreach (Entity entity in initialArray)
             {
-                entity.Iterate(this, initialArray);
+                entity.Iterate(this);
             }
         }
         public bool NoPlant(int[] newCoordinates)  //checks if there is not yet a plant on at these coordinates
@@ -134,6 +134,15 @@ namespace Ecosysteme
             return true;
         }
         public bool Chance(int chance) { return random.Next(1, chance) == 1; }
+        public void OneOfEach(int times)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                this.Add(new Grass(new int[] {random.Next(-100,100), random.Next(-100, 100)}));
+                this.Add(new Deer(new int[] { random.Next(-100, 100), random.Next(-100, 100) }));
+                this.Add(new Wolf(new int[] { random.Next(-100, 100), random.Next(-100, 100) }));
+            }
+        }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
     }
@@ -144,7 +153,7 @@ namespace Ecosysteme
         protected int[] coordinates;    //position in the plane
         public bool IsFirstTime;    //needed for the ID generator (public so the generator can modify it)
         //METHODS
-        abstract public void Iterate(Entities entities, Array initialArray); //what happens to the entity or what the entity does at each iteration
+        abstract public void Iterate(Entities entities); //what happens to the entity or what the entity does at each iteration
         //eventually, this has to take as input the list of all entities and will send as ouput an enumerate of actions that must be executed by the program / an updated list of entities
         public override string ToString() { return string.Format("coordinates=[{0},{1}]", coordinates[0], coordinates[1]); }
         abstract public void Transform(Entities entities);
@@ -164,14 +173,14 @@ namespace Ecosysteme
             this.coordinates = coordinates;
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
             if (this.IterateEnergyAndLife(1))
             {
                 this.Transform(entities);
             }
         }
-        public bool IterateEnergyAndLife(int amount)
+        private bool IterateEnergyAndLife(int amount)
         {
             if (energy > amount)
             {
@@ -205,8 +214,8 @@ namespace Ecosysteme
             }
             entities.Remove(this);
         }
-        public void Fatigue(int amount) { energy -= amount; }   //an organism loses energy over time ; when an animal walks or runs, it loses energy
-        public void ConvertEnergy(int amount)   //when an organism does not have any energy left, it converts lifepoints into energypoints
+        private void Fatigue(int amount) { energy -= amount; }   //an organism loses energy over time ; when an animal walks or runs, it loses energy
+        private void ConvertEnergy(int amount)   //when an organism does not have any energy left, it converts lifepoints into energypoints
         {
             life -= amount;
             energy += amount;
@@ -222,7 +231,7 @@ namespace Ecosysteme
         //ATTRIBUTES
         protected int rootRadius; //how far a plant can consume organic waste
         protected int sowingRadius;   //how far new plants can appear
-        protected int propagationSpeed; //how frequently a plant sows
+        protected int propagationSpeed; //how frequently a plant sows (%)
         protected int calorieDensity; //! calories per life point (==> calories = calorieDensity * life)
         //CONSTRUCTOR
         public Plant(int[] coordinates):
@@ -231,10 +240,10 @@ namespace Ecosysteme
             ;
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
             //losing/regenerating of energy/life
-            base.Iterate(entities, initialArray);
+            base.Iterate(entities);
             //feeding
             OrganicWaste food = this.FindOrganicWaste(entities);
             this.Consume(food, entities);
@@ -313,7 +322,6 @@ namespace Ecosysteme
         protected bool pregnant;
         protected int pregnantTime;
         protected int gestationPeriod;
-        protected int damage;
         //CONSTRUCTOR
         public Animal(int[] coordinates) :
         base(coordinates)
@@ -329,7 +337,7 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //METHODS
-        protected void RandomDirection(Entities entities)
+        private void RandomDirection(Entities entities)
         {
             direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
@@ -337,18 +345,18 @@ namespace Ecosysteme
                 direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) };
             }
         }
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
             //losing/regenerating of energy/life
-            base.Iterate(entities, initialArray);
+            base.Iterate(entities);
             //pooping
-            if (entities.Chance(3)) { this.Poop(entities); }
+            if (entities.Chance(10)) { this.Poop(entities); }
             //pregnancy
             if (pregnant) { this.PregnancyIteration(entities); }
             //actions (feeding / mating)
             this.Action(entities);
         }
-        public void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
+        private void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
         {
             if (direction.Sum() == 1 || direction.Sum() == -1)
             {
@@ -363,9 +371,9 @@ namespace Ecosysteme
         }
         public void Walk() { this.Move(walkSpeed); }
         public void Run() { this.Move(runSpeed); }
-        public void ChangeDirection(int[] direction) { this.direction = direction; }
-        public void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, 20)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
-        protected Animal FindMate(Entities entities)   //finds the closest eligible mate within the vision radius
+        private void ChangeDirection(int[] direction) { this.direction = direction; }
+        private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, 20)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
+        private Animal FindMate(Entities entities)   //finds the closest eligible mate within the vision radius
         {
             Animal response = null;
             int distance = 10000;
@@ -382,9 +390,9 @@ namespace Ecosysteme
             }
             return response;
         }
-        protected void Mate() { if (this.getSex() == 1) { pregnant = true; } }  //female -> pregnancy starts
+        private void Mate() { if (this.getSex() == 1) { pregnant = true; } }  //female -> pregnancy starts
         protected abstract Entity FindFood(Entities entities);
-        protected void Action(Entities entities)
+        private void Action(Entities entities)
         {
             Entity food = FindFood(entities);
             if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
@@ -396,7 +404,7 @@ namespace Ecosysteme
                 this.FoodIteration(entities, food);
             }
         }
-        protected void PregnancyIteration(Entities entities)
+        private void PregnancyIteration(Entities entities)
         {
             if (pregnantTime == gestationPeriod)
             {
@@ -406,7 +414,7 @@ namespace Ecosysteme
             }
             else { pregnantTime++; }
         }
-        protected void NotFoodIteration(Entities entities, Entity food)
+        private void NotFoodIteration(Entities entities, Entity food)
         {
             Animal mate = FindMate(entities);
             if (mate == null)   //no mate in sight
@@ -429,7 +437,7 @@ namespace Ecosysteme
                 this.Walk();
             }
         }
-        protected void FoodIteration(Entities entities, Entity food)
+        private void FoodIteration(Entities entities, Entity food)
         {
             if (Coordinates.Distance(coordinates, food.getCoordinates()) > contactRadius)   //walk or run towards food
             {
@@ -456,7 +464,7 @@ namespace Ecosysteme
                 prey.Damage(25);
             }
         }
-        protected void EatPlant(Entities entities, Plant plant)
+        private void EatPlant(Entities entities, Plant plant)
         {
             int emptyEnergy = 100 - energy;
             int life = plant.getLife();
@@ -476,12 +484,12 @@ namespace Ecosysteme
                 plant.Leave(life);
             }
         }
-        protected void Damage(int amount)
+        public void Damage(int amount)
         {
             if (life < amount) { life = 0; }
             else { life -= amount; }
         }
-        protected void EatMeat(Entities entities, Meat meat)
+        private void EatMeat(Entities entities, Meat meat)
         {
             int emptyEnergy = 100 - energy;
             int calories = meat.getCalories();
@@ -518,9 +526,9 @@ namespace Ecosysteme
 
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
-            base.Iterate(entities, initialArray);
+            base.Iterate(entities);
         }
         protected override Entity FindFood(Entities entities)
         {
@@ -546,9 +554,9 @@ namespace Ecosysteme
 
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
-            base.Iterate(entities, initialArray);
+            base.Iterate(entities);
             //behavior unique to carnivores
         }
         protected override Entity FindFood(Entities entities)
@@ -570,17 +578,18 @@ namespace Ecosysteme
             return response;
         }
     }
+    //SPECIES
     class Deer : Herbivore
     {
         //CONSTRUCTOR
         public Deer(int[] coordinates) :
         base(coordinates)
         {
-            visionRadius = 30;
-            contactRadius = 5;
-            walkSpeed = 10;
-            runSpeed = 25;
-            gestationPeriod = 50;
+            visionRadius = 20;
+            contactRadius = 2;
+            walkSpeed = 5;
+            runSpeed = 8;
+            gestationPeriod = 30;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Deer(coordinates); }
@@ -591,11 +600,11 @@ namespace Ecosysteme
         public Wolf(int[] coordinates) :
         base(coordinates)
         {
-            visionRadius = 50;
-            contactRadius = 5;
-            walkSpeed = 10;
-            runSpeed = 40;
-            gestationPeriod = 90;
+            visionRadius = 30;
+            contactRadius = 3;
+            walkSpeed = 5;
+            runSpeed = 10;
+            gestationPeriod = 50;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Wolf(coordinates); }
@@ -606,9 +615,9 @@ namespace Ecosysteme
         public Grass(int[] coordinates) :
         base(coordinates)
         {
-            rootRadius = 100;
-            sowingRadius = 25;
-            propagationSpeed = 3;
+            rootRadius = 35;
+            sowingRadius = 10;
+            propagationSpeed = 5;
             calorieDensity = 1;   //calories par life point
         }
         //METHODS
@@ -627,12 +636,12 @@ namespace Ecosysteme
             time = 0;
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray)
+        public override void Iterate(Entities entities)
         {
             if (time < 20) { this.Rot(); }
             else { this.Transform(entities); }
         }
-        public void Rot() { time += 1; }
+        private void Rot() { time += 1; }
         public override string ToString() { return base.ToString() + string.Format(", time={0}, calories={1}", time, calories); }
         public override void Transform(Entities entities)
         {
@@ -655,7 +664,7 @@ namespace Ecosysteme
             this.nutrients = nutrients;
         }
         //METHODS
-        public override void Iterate(Entities entities, Array initialArray) { }
+        public override void Iterate(Entities entities) { }
         public override string ToString() { return base.ToString() + string.Format(", nutrients={0}", nutrients); }
         public void Leave(int leftover) { nutrients = leftover; }   //if only a part is consumed
         public override void Transform(Entities entities) { }   //Organic waste does not transform
@@ -667,12 +676,7 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             Entities entities = new Entities();
-            Random rnd = new Random();
-            //entities.Add(new Grass(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
-            //entities.Add(new Meat(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 50));
-            //entities.Add(new OrganicWaste(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }, 15));
-            //entities.Add(new Deer(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
-            //entities.Add(new Wolf(new[] { rnd.Next(-100, 100), rnd.Next(-100, 100) }));
+            entities.OneOfEach(3);
             Terminal.Entities(entities);
             while (true)
             {
