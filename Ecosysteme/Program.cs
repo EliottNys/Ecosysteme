@@ -340,40 +340,9 @@ namespace Ecosysteme
             //pooping
             if (entities.Chance(3)) { this.Poop(entities); }
             //pregnancy
-            if (pregnant)
-            {
-                if (pregnantTime == gestationPeriod)
-                {
-                    pregnantTime = 0;
-                    entities.Add(this.Reproduce(coordinates));
-                }
-                else { pregnantTime++; }
-            }
+            if (pregnant) { this.PregnancyIteration(entities); }
             //actions (feeding / mating)
-            Entity food = FindFood(entities);
-            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
-            {
-                Animal mate = FindMate(entities);
-                if (mate == null)   //there is nothing of interest (no food or mate)
-                {
-                    if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
-                    this.Walk();
-                }
-                else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius)
-                {
-                    this.Mate();
-                    mate.Mate();
-                }
-                else
-                {
-                    this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
-                    this.Walk();
-                }
-            }
-            else    //food is a priority / already pregnant
-            {
-                //eat / go to food
-            }
+            this.Action(entities);
         }
         public void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
         {
@@ -409,23 +378,90 @@ namespace Ecosysteme
             }
             return response;
         }
-        protected void Mate()
-        {
-            if (this.getSex() == 1) { pregnant = true; }    //female -> pregnancy starts
-        }
+        protected void Mate() { if (this.getSex() == 1) { pregnant = true; } }  //female -> pregnancy starts
         protected abstract Entity FindFood(Entities entities);
-        public void PregnancyIteration()
+        protected void Action(Entities entities)
         {
-            if (pregnantTime < 90)
+            Entity food = FindFood(entities);
+            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
             {
-                pregnantTime++;
+                this.NotFoodIteration(entities, food);
             }
-            else
+            else    //food is a priority / already pregnant
+            {
+                this.FoodIteration(entities, food);
+            }
+        }
+        protected void PregnancyIteration(Entities entities)
+        {
+            if (pregnantTime == gestationPeriod)
             {
                 pregnant = false;
                 pregnantTime = 0;
-                //inform program to creat a new animal of the same type at the animal's position
+                entities.Add(this.Reproduce(coordinates));
             }
+            else { pregnantTime++; }
+        }
+        protected void NotFoodIteration(Entities entities, Entity food)
+        {
+            Animal mate = FindMate(entities);
+            if (mate == null)   //no mate in sight
+            {
+                if (food != null) { this.FoodIteration(entities, food); }   //food is not a priority, but there is nothing else to do
+                else  //there is nothing of interest (no food or mate)
+                {
+                    if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
+                    this.Walk();
+                }
+            }
+            else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius) //go towards mate
+            {
+                this.Mate();
+                mate.Mate();
+            }
+            else  //mate
+            {
+                this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
+                this.Walk();
+            }
+        }
+        protected void FoodIteration(Entities entities, Entity food)
+        {
+            if (Coordinates.Distance(coordinates, food.getCoordinates()) > contactRadius)   //walk or run towards food
+            {
+                this.ChangeDirection(Coordinates.Direction(coordinates, food.getCoordinates()));
+                if (food.GetType() == typeof(Herbivore) && Coordinates.Distance(coordinates, food.getCoordinates()) < 100) { this.Run(); }    //if the animal is hunting, it runs
+                else { this.Walk(); }
+            }
+            else if (food.GetType() != typeof(Animal))  //eat food
+            {
+                //eat
+            }
+            else  //kill food
+            {
+                //kill
+            }
+            /*
+            int emptyEnergy = 100 - energy;
+            int nutrients = food.getNutrients();
+            while (emptyEnergy > 0 && nutrients > 0)
+            {
+                emptyEnergy--;
+                energy++;
+                nutrients--;
+            }
+            if (nutrients == 0)
+            {
+                entities.Remove(food);
+            }
+            else
+            {
+                food.Leave(nutrients);
+            }
+            */
+            //if loin => déplacement
+            //else if viande / plante => manger
+            //else tuer
         }
         //ACCESSORS
         public int getSex() { return sex; }
@@ -481,11 +517,15 @@ namespace Ecosysteme
         protected override Entity FindFood(Entities entities)
         {
             Entity response = null;
+            bool foundMeat = false; //needed to prioritize eating meat as opposed to killing another animal
             int distance = 10000;
             foreach (Entity entity in entities.getList())
             {
-                if (entity.GetType() == typeof(Herbivore) && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                if ((entity.GetType() == typeof(Meat) || (entity.GetType() == typeof(Herbivore) && foundMeat == false)) //meat or animal if no meat was found yet
+                    && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius    //within vision radius
+                    && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)   //closer than previous finding
                 {
+                    if (entity.GetType() == typeof(Meat)) { foundMeat = true; }
                     response = entity;
                     distance = Coordinates.Distance(coordinates, entity.getCoordinates());
                 }
