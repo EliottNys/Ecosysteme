@@ -309,6 +309,7 @@ namespace Ecosysteme
         protected int runSpeed;   //used in case of hunting or fleeing
         protected bool pregnant;
         protected int pregnantTime;
+        protected int gestationPeriod;
         //CONSTRUCTOR
         public Animal(int[] coordinates) :
         base(coordinates)
@@ -338,6 +339,16 @@ namespace Ecosysteme
             base.Iterate(entities, initialArray);
             //pooping
             if (entities.Chance(3)) { this.Poop(entities); }
+            //pregnancy
+            if (pregnant)
+            {
+                if (pregnantTime == gestationPeriod)
+                {
+                    pregnantTime = 0;
+                    entities.Add(this.Reproduce(coordinates));
+                }
+                else { pregnantTime++; }
+            }
             //actions (feeding / mating)
             Entity food = FindFood(entities);
             if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
@@ -350,7 +361,8 @@ namespace Ecosysteme
                 }
                 else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius)
                 {
-                    //mate
+                    this.Mate();
+                    mate.Mate();
                 }
                 else
                 {
@@ -396,6 +408,10 @@ namespace Ecosysteme
                 }
             }
             return response;
+        }
+        protected void Mate()
+        {
+            if (this.getSex() == 1) { pregnant = true; }    //female -> pregnancy starts
         }
         protected abstract Entity FindFood(Entities entities);
         public void PregnancyIteration()
@@ -487,6 +503,7 @@ namespace Ecosysteme
             contactRadius = 5;
             walkSpeed = 10;
             runSpeed = 25;
+            gestationPeriod = 50;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Deer(coordinates); }
@@ -501,6 +518,7 @@ namespace Ecosysteme
             contactRadius = 5;
             walkSpeed = 10;
             runSpeed = 40;
+            gestationPeriod = 90;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Wolf(coordinates); }
