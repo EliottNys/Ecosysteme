@@ -133,6 +133,7 @@ namespace Ecosysteme
             }
             return true;
         }
+        public bool Chance(int chance) { return random.Next(1, chance) == 1; }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
     }
@@ -323,10 +324,44 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //METHODS
+        protected void RandomDirection(Entities entities)
+        {
+            direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
+            {
+                direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) };
+            }
+        }
         public override void Iterate(Entities entities, Array initialArray)
         {
             //losing/regenerating of energy/life
             base.Iterate(entities, initialArray);
+            //pooping
+            if (entities.Chance(3)) { this.Poop(entities); }
+            //actions (feeding / mating)
+            Entity food = FindFood(entities);
+            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
+            {
+                Animal mate = FindMate(entities);
+                if (mate == null)   //there is nothing of interest (no food or mate)
+                {
+                    if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
+                    this.Walk();
+                }
+                else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius)
+                {
+                    //mate
+                }
+                else
+                {
+                    this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
+                    this.Walk();
+                }
+            }
+            else    //food is a priority / already pregnant
+            {
+                //eat / go to food
+            }
         }
         public void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
         {
@@ -362,6 +397,7 @@ namespace Ecosysteme
             }
             return response;
         }
+        protected abstract Entity FindFood(Entities entities);
         public void PregnancyIteration()
         {
             if (pregnantTime < 90)
@@ -396,35 +432,16 @@ namespace Ecosysteme
         public override void Iterate(Entities entities, Array initialArray)
         {
             base.Iterate(entities, initialArray);
-            Plant food = FindFood(entities);
-            
-            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
-            {
-                Animal mate = FindMate(entities);
-                if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius)
-                {
-                    //mate
-                }
-                else
-                {
-                    this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
-                    this.Walk();
-                }
-            }
-            else    //food is a priority / already pregnant
-            {
-                //eat / go to food
-            }
         }
-        private Plant FindFood(Entities entities)
+        protected override Entity FindFood(Entities entities)
         {
-            Plant response = null;
+            Entity response = null;
             int distance = 10000;
             foreach (Entity entity in entities.getList())
             {
                 if (entity.GetType() == typeof(Plant) && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
                 {
-                    response = (Plant)entity;
+                    response = entity;
                     distance = Coordinates.Distance(coordinates, entity.getCoordinates());
                 }
             }
@@ -444,6 +461,20 @@ namespace Ecosysteme
         {
             base.Iterate(entities, initialArray);
             //behavior unique to carnivores
+        }
+        protected override Entity FindFood(Entities entities)
+        {
+            Entity response = null;
+            int distance = 10000;
+            foreach (Entity entity in entities.getList())
+            {
+                if (entity.GetType() == typeof(Herbivore) && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                {
+                    response = entity;
+                    distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                }
+            }
+            return response;
         }
     }
     class Deer : Herbivore
