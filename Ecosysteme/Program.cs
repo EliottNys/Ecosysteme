@@ -223,7 +223,7 @@ namespace Ecosysteme
         protected int rootRadius; //how far a plant can consume organic waste
         protected int sowingRadius;   //how far new plants can appear
         protected int propagationSpeed; //how frequently a plant sows
-        protected int calories;
+        protected int calorieDensity; //! calories per life point (==> calories = calorieDensity * life)
         //CONSTRUCTOR
         public Plant(int[] coordinates):
         base(coordinates)
@@ -294,12 +294,12 @@ namespace Ecosysteme
             }
             return null;
         }
-        public void Leave(int amount) { calories = amount; }
+        public void Leave(int amount) { life = amount; }
         //ACCESSORS
         public int getRootRadius() { return rootRadius; }
         public int getSowingRadius() { return sowingRadius; }
         public int getPropagationSpeed() { return propagationSpeed; }
-        public int getCalories() { return calories; }
+        public int getCalorieDensity() { return calorieDensity; }
     }
     abstract class Animal : Organism    //herbivores and carnivores
     {
@@ -459,20 +459,21 @@ namespace Ecosysteme
         protected void EatPlant(Entities entities, Plant plant)
         {
             int emptyEnergy = 100 - energy;
-            int calories = plant.getCalories();
-            while (emptyEnergy > 0 && calories > 0)
+            int life = plant.getLife();
+            int calorieDensity = plant.getCalorieDensity();
+            while (emptyEnergy > 0 && life > 0)
             {
-                emptyEnergy--;
-                energy++;
-                calories--;
+                emptyEnergy-=calorieDensity;
+                energy+= calorieDensity;
+                life--;
             }
-            if (calories == 0)
+            if (life == 0)
             {
                 entities.Remove(plant);
             }
             else
             {
-                plant.Leave(calories);
+                plant.Leave(life);
             }
         }
         protected void Damage(int amount)
@@ -608,7 +609,7 @@ namespace Ecosysteme
             rootRadius = 100;
             sowingRadius = 25;
             propagationSpeed = 3;
-            calories = 30;
+            calorieDensity = 1;   //calories par life point
         }
         //METHODS
         protected override Organism Reproduce(int[] newCoordinates) { return new Grass(newCoordinates); }
