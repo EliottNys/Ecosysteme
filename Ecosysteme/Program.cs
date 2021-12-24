@@ -76,6 +76,18 @@ namespace Ecosysteme
                 else { return new int[] { -1, 1 }; }    //NW
             }
         }
+        public static List<int[]> Area(int[] coordinates, int radius)   //returns all coordinates within range
+        {
+            List<int[]> answer = new List<int[]>();
+            for (int i = coordinates[0] - radius; i <= coordinates[0] + radius; i++)
+            {
+                for (int j = coordinates[1] - radius; j <= coordinates[1] + radius; j++)
+                {
+                    if (Coordinates.Distance(new int[] { i, j }, coordinates) <= radius) { answer.Add(new int[] { i, j }); }    //square => (pseudo-)circle
+                }
+            }
+            return answer;
+        }
     }
     public class Entities
     {
@@ -126,10 +138,17 @@ namespace Ecosysteme
         {
             foreach (Entity entity in entities)
             {
+                if (entity.GetType().IsSubclassOf(typeof(Plant)))
+                {
+                    Plant plant = (Plant)entity;
+                    if (plant.getOccupiedArea().Contains(newCoordinates)) { return false; }
+                }
+                /*
                 if (entity.getCoordinates().SequenceEqual(newCoordinates) && entity.GetType().IsSubclassOf(typeof(Plant)))
                 {
                     return false;
                 }
+                */
             }
             return true;
         }
@@ -231,13 +250,14 @@ namespace Ecosysteme
         //ATTRIBUTES
         protected int rootRadius; //how far a plant can consume organic waste
         protected int sowingRadius;   //how far new plants can appear
+        protected List<int[]> occupiedArea; //area in which no other plant can grow,
         protected int propagationSpeed; //how frequently a plant sows (%)
         protected int calorieDensity; //! calories per life point (==> calories = calorieDensity * life)
         //CONSTRUCTOR
         public Plant(int[] coordinates):
         base(coordinates)
         {
-            ;
+            this.occupiedArea = Coordinates.Area(coordinates, 1);   //if you want to override this in the species class: 1 occupies 5 points, 2 occupies 13 points, 3 occupies 29 points ...
         }
         //METHODS
         public override void Iterate(Entities entities)
@@ -309,6 +329,7 @@ namespace Ecosysteme
         public int getSowingRadius() { return sowingRadius; }
         public int getPropagationSpeed() { return propagationSpeed; }
         public int getCalorieDensity() { return calorieDensity; }
+        public List<int[]> getOccupiedArea() { return occupiedArea; }
     }
     abstract class Animal : Organism    //herbivores and carnivores
     {
