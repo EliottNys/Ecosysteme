@@ -49,7 +49,17 @@ namespace Ecosysteme
         }
         public static int[] Direction(int[] departure, int[] destination)   //gives the direction you need to take to go from departure-point to destination-point
         {
-            int[] vector = destination.Zip(departure, (x, y) => x - y).ToArray();
+            int[] vector = new int[] { destination[0] - departure[0], destination[1] - departure[1] };
+            if (vector[0] == 0)
+            {
+                if (vector[1] > 0) { return new int[] { 0, 1 }; }
+                else { return new int[] { 0, -1 };}
+            }
+            if (vector[1] == 0)
+            {
+                if (vector[0] > 0) { return new int[] { 1, 0 }; }
+                else { return new int[] { -1, 0 }; }
+            }
             int sinus = (int)Math.Round((double)(1000 * (vector[1] / vector[0])));
             if (vector[0] > 0 && vector[1] > 0) //1st quadrant
             {
@@ -152,15 +162,23 @@ namespace Ecosysteme
             }
             return true;
         }
-        public bool Chance(int chance) { return random.Next(1, chance) == 1; }
+        public bool Chance(int chance) { return random.Next(0, chance) == 0; }
         public void OneOfEach(int times)
         {
             for (int i = 0; i < times; i++)
             {
-                this.Add(new Grass(new int[] {random.Next(-100,100), random.Next(-100, 100)}));
-                this.Add(new Deer(new int[] { random.Next(-100, 100), random.Next(-100, 100) }));
-                this.Add(new Wolf(new int[] { random.Next(-100, 100), random.Next(-100, 100) }));
+                this.Add(new Grass(new int[] {random.Next(-100,101), random.Next(-100, 101)}));
+                this.Add(new Bush(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
+                this.Add(new Deer(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
+                this.Add(new Rabbit(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
+                this.Add(new Wolf(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
+                this.Add(new Fox(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
             }
+        }
+        public void MatingTest()
+        {
+            this.Add(new Deer(new int[] { -5, 0 }));
+            this.Add(new Deer(new int[] { 5, 0 }));
         }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
@@ -348,11 +366,12 @@ namespace Ecosysteme
         base(coordinates)
         {
             Random rnd = new Random();
-            sex = rnd.Next(1);
-            direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            sex = rnd.Next(2);
+            direction = new[] { rnd.Next(-1, 2), rnd.Next(-1, 2) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
-                direction = new[] { rnd.Next(-1, 1), rnd.Next(-1, 1) };
+                direction[0] = rnd.Next(-1, 2);
+                direction[1] = rnd.Next(-1, 2);
             }
             pregnant = false;
             pregnantTime = 0;
@@ -360,10 +379,11 @@ namespace Ecosysteme
         //METHODS
         private void RandomDirection(Entities entities)
         {
-            direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            direction = new[] { entities.random.Next(-1, 2), entities.random.Next(-1, 2) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
             while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
-                direction = new[] { entities.random.Next(-1, 1), entities.random.Next(-1, 1) };
+                direction[0] = entities.random.Next(-1, 2);
+                direction[1] = entities.random.Next(-1, 2);
             }
         }
         public override void Iterate(Entities entities)
@@ -386,8 +406,8 @@ namespace Ecosysteme
             }
             else
             {
-                coordinates[0] -= (int)Math.Ceiling(direction[0] * speed * 0.7);
-                coordinates[1] -= (int)Math.Ceiling(direction[1] * speed * 0.7);
+                coordinates[0] += (int)Math.Round(direction[0] * speed * 0.7);
+                coordinates[1] += (int)Math.Ceiling(direction[1] * speed * 0.7);
             }
         }
         public void Walk() { this.Move(walkSpeed); }
@@ -447,12 +467,12 @@ namespace Ecosysteme
                     this.Walk();
                 }
             }
-            else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius) //go towards mate
+            else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius) //mate
             {
                 this.Mate();
                 mate.Mate();
             }
-            else  //mate
+            else  //go towards mate
             {
                 this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
                 this.Walk();
@@ -460,7 +480,12 @@ namespace Ecosysteme
         }
         private void FoodIteration(Entities entities, Entity food)
         {
-            if (Coordinates.Distance(coordinates, food.getCoordinates()) > contactRadius)   //walk or run towards food
+            if (food == null)
+            {
+                if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
+                this.Walk();
+            }
+            else if (Coordinates.Distance(coordinates, food.getCoordinates()) > contactRadius)   //walk or run towards food
             {
                 this.ChangeDirection(Coordinates.Direction(coordinates, food.getCoordinates()));
                 if (food.GetType() == typeof(Herbivore) && Coordinates.Distance(coordinates, food.getCoordinates()) < 100) { this.Run(); }    //if the animal is hunting, it runs
@@ -607,13 +632,28 @@ namespace Ecosysteme
         base(coordinates)
         {
             visionRadius = 20;
-            contactRadius = 2;
+            contactRadius = 3;
             walkSpeed = 5;
             runSpeed = 8;
             gestationPeriod = 30;
         }
         //METHODS
-        protected override Organism Reproduce(int[] coordinates) { return new Deer(coordinates); }
+        protected override Organism Reproduce(int[] coordinates) { return new Deer((int[])coordinates.Clone()); }
+    }
+    class Rabbit : Herbivore
+    {
+        //CONSTRUCTOR
+        public Rabbit(int[] coordinates) :
+        base(coordinates)
+        {
+            visionRadius = 8;
+            contactRadius = 2;
+            walkSpeed = 7;
+            runSpeed = 8;
+            gestationPeriod = 20;
+        }
+        //METHODS
+        protected override Organism Reproduce(int[] coordinates) { return new Rabbit((int[])coordinates.Clone()); }
     }
     class Wolf : Carnivore
     {
@@ -628,7 +668,22 @@ namespace Ecosysteme
             gestationPeriod = 50;
         }
         //METHODS
-        protected override Organism Reproduce(int[] coordinates) { return new Wolf(coordinates); }
+        protected override Organism Reproduce(int[] coordinates) { return new Wolf((int[])coordinates.Clone()); }
+    }
+    class Fox : Carnivore
+    {
+        //CONSTRUCTOR
+        public Fox(int[] coordinates) :
+        base(coordinates)
+        {
+            visionRadius = 25;
+            contactRadius = 3;
+            walkSpeed = 5;
+            runSpeed = 8;
+            gestationPeriod = 70;
+        }
+        //METHODS
+        protected override Organism Reproduce(int[] coordinates) { return new Wolf((int[])coordinates.Clone()); }
     }
     class Grass : Plant
     {
@@ -636,15 +691,29 @@ namespace Ecosysteme
         public Grass(int[] coordinates) :
         base(coordinates)
         {
-            rootRadius = 35;
-            sowingRadius = 10;
+            rootRadius = 30;
+            sowingRadius = 5;
             propagationSpeed = 5;
             calorieDensity = 1;   //calories par life point
         }
         //METHODS
-        protected override Organism Reproduce(int[] newCoordinates) { return new Grass(newCoordinates); }
+        protected override Organism Reproduce(int[] newCoordinates) { return new Grass((int[])coordinates.Clone()); }
     }
-    class Meat : Entity  //created when an animal dies
+    class Bush : Plant
+    {
+        //CONSTRUCTOR
+        public Bush(int[] coordinates) :
+        base(coordinates)
+        {
+            rootRadius = 40;
+            sowingRadius = 15;
+            propagationSpeed = 3;
+            calorieDensity = 3;   //calories par life point
+        }
+        //METHODS
+        protected override Organism Reproduce(int[] newCoordinates) { return new Bush((int[])coordinates.Clone()); }
+    }
+        class Meat : Entity  //created when an animal dies
     {
         //ATTRIBUTES
         private int time;   //after some time, the meat rots and becomes organic waste
@@ -697,7 +766,7 @@ namespace Ecosysteme
         static void Main(string[] args)
         {
             Entities entities = new Entities();
-            entities.OneOfEach(3);
+            entities.MatingTest();
             Terminal.Entities(entities);
             while (true)
             {
