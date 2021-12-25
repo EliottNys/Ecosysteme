@@ -31,15 +31,6 @@ namespace Ecosysteme
             pregnantTime = 0;
         }
         //METHODS
-        private void RandomDirection(Entities entities)
-        {
-            direction = new[] { entities.random.Next(-1, 2), entities.random.Next(-1, 2) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
-            while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
-            {
-                direction[0] = entities.random.Next(-1, 2);
-                direction[1] = entities.random.Next(-1, 2);
-            }
-        }
         public override void Iterate(Entities entities)
         {
             //losing/regenerating of energy/life
@@ -67,26 +58,26 @@ namespace Ecosysteme
         public void Walk() { this.Move(walkSpeed); }
         public void Run() { this.Move(runSpeed); }
         private void ChangeDirection(int[] direction) { this.direction = direction; }
-        private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, 20)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
-        private Animal FindMate(Entities entities)   //finds the closest eligible mate within the vision radius
+        private void RandomDirection(Entities entities)
         {
-            Animal response = null;
-            int distance = 10000;
-            foreach (Entity entity in entities.getList())
+            direction = new[] { entities.random.Next(-1, 2), entities.random.Next(-1, 2) }; //random cardinal direction (examples: (-1, 1)=NW ; (1,0)=E ; (1,-1)=SE)
+            while (direction[0] == 0 && direction[1] == 0)    //(0,0) is not a direction, so we generate a new one
             {
-                if (entity.GetType() == this.GetType() && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
-                {
-                    if (sex != ((Animal)entity).getSex() && !((Animal)entity).getPregnant())  //not same sex and not yet pregnant
-                    {
-                        response = (Animal)entity;
-                        distance = Coordinates.Distance(coordinates, entity.getCoordinates());
-                    }
-                }
+                direction[0] = entities.random.Next(-1, 2);
+                direction[1] = entities.random.Next(-1, 2);
             }
-            return response;
         }
-        private void Mate() { if (this.getSex() == 1) { pregnant = true; } }  //female -> pregnancy starts
-        protected abstract Entity FindFood(Entities entities);
+        private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, 20)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
+        private void PregnancyIteration(Entities entities)
+        {
+            if (pregnantTime == gestationPeriod)
+            {
+                pregnant = false;
+                pregnantTime = 0;
+                entities.Add(this.Reproduce(coordinates));
+            }
+            else { pregnantTime++; }
+        }
         private void Action(Entities entities)
         {
             Entity food = FindFood(entities);
@@ -99,39 +90,7 @@ namespace Ecosysteme
                 this.FoodIteration(entities, food);
             }
         }
-        private void PregnancyIteration(Entities entities)
-        {
-            if (pregnantTime == gestationPeriod)
-            {
-                pregnant = false;
-                pregnantTime = 0;
-                entities.Add(this.Reproduce(coordinates));
-            }
-            else { pregnantTime++; }
-        }
-        private void NotFoodIteration(Entities entities, Entity food)
-        {
-            Animal mate = FindMate(entities);
-            if (mate == null)   //no mate in sight
-            {
-                if (food != null) { this.FoodIteration(entities, food); }   //food is not a priority, but there is nothing else to do
-                else  //there is nothing of interest (no food or mate)
-                {
-                    if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
-                    this.Walk();
-                }
-            }
-            else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius) //mate
-            {
-                this.Mate();
-                mate.Mate();
-            }
-            else  //go towards mate
-            {
-                this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
-                this.Walk();
-            }
-        }
+        protected abstract Entity FindFood(Entities entities);
         private void FoodIteration(Entities entities, Entity food)
         {
             if (food == null)
@@ -184,7 +143,7 @@ namespace Ecosysteme
                 plant.Leave(life);
             }
         }
-        public void Damage(int amount)
+        private void Damage(int amount)
         {
             if (life < amount) { life = 0; }
             else { life -= amount; }
@@ -208,6 +167,47 @@ namespace Ecosysteme
                 meat.Leave(calories);
             }
         }
+        private void NotFoodIteration(Entities entities, Entity food)
+        {
+            Animal mate = FindMate(entities);
+            if (mate == null)   //no mate in sight
+            {
+                if (food != null) { this.FoodIteration(entities, food); }   //food is not a priority, but there is nothing else to do
+                else  //there is nothing of interest (no food or mate)
+                {
+                    if (entities.Chance(10)) { this.RandomDirection(entities); }    //animal changes direction regularly so it doesn't wander off too far away from the other entities
+                    this.Walk();
+                }
+            }
+            else if (Coordinates.Distance(coordinates, mate.getCoordinates()) <= contactRadius) //mate
+            {
+                this.Mate();
+                mate.Mate();
+            }
+            else  //go towards mate
+            {
+                this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
+                this.Walk();
+            }
+        }
+        private Animal FindMate(Entities entities)   //finds the closest eligible mate within the vision radius
+        {
+            Animal response = null;
+            int distance = 10000;
+            foreach (Entity entity in entities.getList())
+            {
+                if (entity.GetType() == this.GetType() && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                {
+                    if (sex != ((Animal)entity).getSex() && !((Animal)entity).getPregnant())  //not same sex and not yet pregnant
+                    {
+                        response = (Animal)entity;
+                        distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                    }
+                }
+            }
+            return response;
+        }
+        private void Mate() { if (this.getSex() == 1) { pregnant = true; } }  //female -> pregnancy starts
         //ACCESSORS
         public int getSex() { return sex; }
         public int getVisionRadius() { return visionRadius; }

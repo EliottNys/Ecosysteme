@@ -20,7 +20,7 @@
         }
         private void Rot() { time += 1; }
         public override string ToString() { return base.ToString() + string.Format(", time={0}, calories={1}", time, calories); }
-        public override void Transform(Entities entities)
+        protected override void Transform(Entities entities)
         {
             entities.Add(new OrganicWaste(coordinates, 20));    //turn into organic waste
             entities.Remove(this);

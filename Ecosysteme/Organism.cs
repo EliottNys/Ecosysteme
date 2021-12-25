@@ -20,7 +20,7 @@
                 this.Transform(entities);
             }
         }
-        private bool IterateEnergyAndLife(int amount)
+        private bool IterateEnergyAndLife(int amount)   //the bool return value expresses whether the organism needs to transform
         {
             if (energy > amount)
             {
@@ -42,7 +42,7 @@
                 return true;
             }
         }
-        public override void Transform(Entities entities)
+        protected override void Transform(Entities entities)
         {
             if (this.GetType().IsSubclassOf(typeof(Plant))) //organism is plant
             {
