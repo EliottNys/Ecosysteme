@@ -80,13 +80,41 @@ namespace Ecosysteme
                 this.Add(new Fox(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
             }
         }
-        public void MatingTest()
+        public void GrassOrganicWaste() //to observe a plant eating
+        {
+            this.Add(new Grass(new int[] { -5, 0 }));
+            this.Add(new OrganicWaste(new int[] { 5, 0 }, 25));
+        }
+        public void DeerGrass() //to observe a herbivore eating
+        {
+            this.Add(new Deer(new int[] { -5, 0 }));
+            this.Add(new Grass(new int[] { 5, 0 }));
+        }
+        public void WolfMeat()  //to observe a carnivore eating
+        {
+            this.Add(new Wolf(new int[] { -5, 0 }));
+            this.Add(new Meat(new int[] { 5, 0 }, 25));
+        }
+        public void WolfDeer()  //to observe hunting
+        {
+            this.Add(new Wolf(new int[] { -5, 0 }));
+            this.Add(new Deer(new int[] { 5, 0 }));
+        }
+        public void OnlyGrass()     //to observe the propagation of a plant
+        {
+            this.Add(new Grass(new int[] { 0, 0 }));
+        }
+        public void DeerDeer()  //to observe mating (3 couples to increase chance of opposite sex)
         {
             this.Add(new Deer(new int[] { -5, 0 }));
             this.Add(new Deer(new int[] { 5, 0 }));
+            this.Add(new Deer(new int[] { -5, 100 }));
+            this.Add(new Deer(new int[] { 5, 100 }));
+            this.Add(new Deer(new int[] { -5, -100 }));
+            this.Add(new Deer(new int[] { 5, -100 }));
         }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
     }
-    //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes
+    //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes, avec des frontières
 }
