@@ -112,7 +112,11 @@ namespace Ecosysteme
                     else if (distance < 50) { this.Run(); }     //if the animal is close, it runs
                     else { this.Walk(); }
                 }
-                else { this.Walk(); }
+                else
+                {
+                    if (distance < walkSpeed) { coordinates = food.getCoordinates(); }
+                    else { this.Walk(); }
+                }
             }
             else if (!(food is Animal))  //eat food
             {
@@ -197,8 +201,13 @@ namespace Ecosysteme
             }
             else  //go towards mate
             {
-                this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
-                this.Walk();
+                int distance = Coordinates.Distance(coordinates, mate.getCoordinates());
+                if (distance < walkSpeed) { coordinates = mate.getCoordinates(); }
+                else
+                {
+                    this.ChangeDirection(Coordinates.Direction(coordinates, mate.getCoordinates()));
+                    this.Walk();
+                }
             }
         }
         private Animal FindMate(Entities entities)   //finds the closest eligible mate within the vision radius

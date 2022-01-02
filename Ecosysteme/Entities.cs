@@ -35,6 +35,27 @@ namespace Ecosysteme
                 return "There are no entities";
             }
         }
+        public string Number()
+        {
+            int grass = 0;
+            int bush = 0;
+            int deer = 0;
+            int rabbit = 0;
+            int wolf = 0;
+            int fox = 0;
+            foreach (Entity entity in entities)
+            {
+                if (entity is Grass) { grass ++; }
+                else if (entity is Bush) { bush++; }
+                else if (entity is Deer) { deer++; }
+                else if (entity is Rabbit) { rabbit++; }
+                else if (entity is Wolf) { wolf++; }
+                else if (entity is Fox) { fox++; }
+            }
+            string text;
+            text = string.Format("Grass: {0} entities\nBush: {1} entities\nDeer: {2} entities\nRabbit: {3} entities\nWolf: {4} entities\nFox: {5} entities", grass, bush, deer, rabbit, wolf, fox) ;
+            return text;
+        }
         public void Add(Entity entity)
         {
             entities.Add(entity);

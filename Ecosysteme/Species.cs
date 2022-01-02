@@ -10,7 +10,7 @@
             contactRadius = 3;
             walkSpeed = 5;
             runSpeed = 8;
-            gestationPeriod = 30;
+            gestationPeriod = 25;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Deer((int[])coordinates.Clone()); }
@@ -25,7 +25,7 @@
             contactRadius = 2;
             walkSpeed = 7;
             runSpeed = 8;
-            gestationPeriod = 20;
+            gestationPeriod = 15;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Rabbit((int[])coordinates.Clone()); }
