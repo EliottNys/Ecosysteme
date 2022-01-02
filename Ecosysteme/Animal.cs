@@ -14,6 +14,8 @@ namespace Ecosysteme
         protected bool pregnant;
         protected int pregnantTime;
         protected int gestationPeriod;
+        protected int lifeExpectancy;
+        protected int lifeTime;
         //CONSTRUCTOR
         public Animal(int[] coordinates) :
         base(coordinates)
@@ -28,6 +30,7 @@ namespace Ecosysteme
             }
             pregnant = false;
             pregnantTime = 0;
+            lifeTime = 0;
         }
         //METHODS
         public override void Iterate(Entities entities)
@@ -36,12 +39,17 @@ namespace Ecosysteme
             base.Iterate(entities);
             if (entities.getList().Contains(this))  //not dead yet
             {
-                //pooping
-                if (entities.Chance(10)) { this.Poop(entities); }
-                //pregnancy
-                if (pregnant) { this.PregnancyIteration(entities); }
-                //actions (feeding / mating)
-                this.Action(entities);
+                //aging
+                if (this.LifeTimeIteration()) { this.Transform(entities); }
+                if (entities.getList().Contains(this))  //still not dead
+                {
+                    //pooping
+                    if (entities.Chance(10)) { this.Poop(entities); }
+                    //pregnancy
+                    if (pregnant) { this.PregnancyIteration(entities); }
+                    //actions (feeding / mating)
+                    this.Action(entities);
+                }
             }
         }
         private void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
@@ -68,6 +76,11 @@ namespace Ecosysteme
                 direction[0] = entities.random.Next(-1, 2);
                 direction[1] = entities.random.Next(-1, 2);
             }
+        }
+        private bool LifeTimeIteration()
+        {
+            lifeTime++;
+            if (lifeTime > lifeExpectancy) { return true; } else { return false; }
         }
         private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, energy / 5)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
         private void PregnancyIteration(Entities entities)

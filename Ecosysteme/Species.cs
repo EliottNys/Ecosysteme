@@ -11,6 +11,7 @@
             walkSpeed = 7;
             runSpeed = 8;
             gestationPeriod = 20;
+            lifeExpectancy = 350;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Deer((int[])coordinates.Clone()); }
@@ -26,6 +27,7 @@
             walkSpeed = 6;
             runSpeed = 8;
             gestationPeriod = 15;
+            lifeExpectancy = 300;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Rabbit((int[])coordinates.Clone()); }
@@ -41,6 +43,7 @@
             walkSpeed = 5;
             runSpeed = 10;
             gestationPeriod = 45;
+            lifeExpectancy = 450;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Wolf((int[])coordinates.Clone()); }
@@ -56,6 +59,7 @@
             walkSpeed = 5;
             runSpeed = 10;
             gestationPeriod = 60;
+            lifeExpectancy = 500;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Fox((int[])coordinates.Clone()); }

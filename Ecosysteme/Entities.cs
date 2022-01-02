@@ -175,7 +175,7 @@ namespace Ecosysteme
             this.Add(new Rabbit(new int[] { 0, 20 }));
             this.Add(new Rabbit(new int[] { 5, 15 }));
             //time to mate
-            this.Iterate(35);
+            this.Iterate(200);
             //carnivores
             Wolf wolf1 = new Wolf(new int[] { -20, -10 });
             Wolf wolf2 = new Wolf(new int[] { 0, -20 });
