@@ -68,7 +68,7 @@
         {
             rootRadius = 30;
             sowingRadius = 5;
-            propagationSpeed = 5;
+            propagationSpeed = 3;
             calorieDensity = 1;   //calories par life point
         }
         //METHODS
@@ -82,7 +82,7 @@
         {
             rootRadius = 40;
             sowingRadius = 15;
-            propagationSpeed = 3;
+            propagationSpeed = 2;
             calorieDensity = 3;   //calories par life point
         }
         //METHODS

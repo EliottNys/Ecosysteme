@@ -12,8 +12,8 @@
             //entities.WolfDeer();              //to observe hunting
             //entities.OnlyGrass();             //to observe the propagation of a plant
             //entities.DeerDeer();              //to observe mating (3 couples to increase chance of opposite sex)
-            //entities.Scenario1();
-            //entities.Add(new Meat(new int[] { 0, 0 }, 20));
+            entities.Scenario1();
+            //entities.Add(new Meat(new int[] { 0, 0 }, 20));   //example to manually add an entity
             Terminal.Entities(entities);
             while (true)
             {
