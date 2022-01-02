@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-
 namespace Ecosysteme
 {
     abstract class Plant : Organism //all plant species
@@ -76,7 +74,7 @@ namespace Ecosysteme
             if (entities.random.Next(1, 101) < propagationSpeed)
             {
                 int[] newCoordinates = Coordinates.CloseBy(coordinates, sowingRadius, entities.random);
-                if (entities.NoPlant(newCoordinates) && Coordinates.IsInside(newCoordinates, 65))
+                if (entities.NoPlant(newCoordinates) && Coordinates.IsInside(newCoordinates, 55))
                 {
                     return newCoordinates;
                 }

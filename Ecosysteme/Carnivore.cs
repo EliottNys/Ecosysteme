@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-namespace Ecosysteme
+﻿namespace Ecosysteme
 {
     abstract class Carnivore : Animal   //all carnivore species
     {
@@ -19,16 +18,17 @@ namespace Ecosysteme
         {
             Entity response = null;
             bool foundMeat = false; //needed to prioritize eating meat as opposed to killing another animal
-            int distance = 10000;
+            int distanceMin = 10000;
             foreach (Entity entity in entities.getList())
             {
-                if ((entity.GetType() == typeof(Meat) || (entity is Herbivore && foundMeat == false)) //meat or animal if no meat was found yet
-                    && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius    //within vision radius
-                    && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)   //closer than previous finding
+                int distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                if (entity is Meat || (entity is Herbivore && foundMeat == false) //meat or animal if no meat was found yet
+                    && distance < visionRadius    //within vision radius
+                    && distance < distanceMin)   //closer than previous finding
                 {
-                    if (entity.GetType() == typeof(Meat)) { foundMeat = true; }
+                    if (entity is Meat) { foundMeat = true; }
                     response = entity;
-                    distance = Coordinates.Distance(coordinates, entity.getCoordinates());
+                    distanceMin = Coordinates.Distance(coordinates, entity.getCoordinates());
                 }
             }
             return response;

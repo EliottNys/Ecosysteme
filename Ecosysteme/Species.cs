@@ -8,9 +8,9 @@
         {
             visionRadius = 20;
             contactRadius = 3;
-            walkSpeed = 5;
+            walkSpeed = 7;
             runSpeed = 8;
-            gestationPeriod = 25;
+            gestationPeriod = 20;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Deer((int[])coordinates.Clone()); }
@@ -21,9 +21,9 @@
         public Rabbit(int[] coordinates) :
         base(coordinates)
         {
-            visionRadius = 8;
+            visionRadius = 10;
             contactRadius = 2;
-            walkSpeed = 7;
+            walkSpeed = 6;
             runSpeed = 8;
             gestationPeriod = 15;
         }
@@ -36,11 +36,11 @@
         public Wolf(int[] coordinates) :
         base(coordinates)
         {
-            visionRadius = 30;
+            visionRadius = 40;
             contactRadius = 3;
             walkSpeed = 5;
             runSpeed = 10;
-            gestationPeriod = 50;
+            gestationPeriod = 45;
         }
         //METHODS
         protected override Organism Reproduce(int[] coordinates) { return new Wolf((int[])coordinates.Clone()); }
@@ -51,14 +51,14 @@
         public Fox(int[] coordinates) :
         base(coordinates)
         {
-            visionRadius = 25;
+            visionRadius = 30;
             contactRadius = 3;
             walkSpeed = 5;
-            runSpeed = 8;
-            gestationPeriod = 70;
+            runSpeed = 10;
+            gestationPeriod = 60;
         }
         //METHODS
-        protected override Organism Reproduce(int[] coordinates) { return new Wolf((int[])coordinates.Clone()); }
+        protected override Organism Reproduce(int[] coordinates) { return new Fox((int[])coordinates.Clone()); }
     }
     class Grass : Plant
     {

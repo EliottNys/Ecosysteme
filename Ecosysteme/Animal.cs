@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Diagnostics;
-
 namespace Ecosysteme
 {
     abstract class Animal : Organism    //herbivores and carnivores
@@ -85,7 +83,9 @@ namespace Ecosysteme
         private void Action(Entities entities)
         {
             Entity food = FindFood(entities);
-            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant)   //food is not a priority / there is no food
+            int[] numbers = entities.Number();  //this is for population control (otherwise some populations get out of control and unbalance the ecosystem)
+            bool populationControl = (this is Deer && numbers[2] < 50) || (this is Rabbit && numbers[3] < 100) || (this is Wolf && numbers[4] < 15) || (this is Fox && numbers[5] < 10);
+            if ((food == null || energy > 80 || (energy > 10 && life > 50)) && !pregnant && populationControl)   //food is not a priority / there is no food
             {
                 this.NotFoodIteration(entities, food);
             }

@@ -1,5 +1,4 @@
 ﻿using System;
-
 namespace Ecosysteme
 {
     public static class Terminal    //for information that needs to be displayed regularly
@@ -9,7 +8,7 @@ namespace Ecosysteme
         {
             Console.WriteLine(entities.Display());
             Terminal.Separate();
-            Console.WriteLine(entities.Number());
+            Console.WriteLine(entities.NumberString());
             Terminal.Separate();
         }
         public static int AskIterations()   //asks the user to input how many iterations they would like the program to complete. If the user does not type an int, (s)he is asked again until (s)he does.

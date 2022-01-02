@@ -7,11 +7,11 @@ Ceci est un projet de 3ème année à l'ECAM pour le cours de programmation orie
 L'énoncé est disponible ici : [quentin-lurkin.xyz](https://quentin.lurkin.xyz/courses/poo/projet2021/index.html)
 ___
 ## Utilisation du programme
-Par défaut, le programme exécute un scénario dans lequel des plantes sont placées dans le plan, du temps est laissé à ces plantes pour se propager, des herbivores sont placés (et recoivent également un peu de temps pour procréer) et puis enfin des prédateurs sont insérés. Le plaçement de ces entités ressemble à ceci:
+Par défaut, le programme exécute un scénario dans lequel des plantes sont placées dans le plan, du temps est laissé à ces plantes pour se propager, puis des herbivores sont placés (et recoivent également un peu de temps pour procréer) et puis enfin des prédateurs sont insérés. Le plaçement de ces entités ressemble à ceci:
 
 ![Scénario1](Scenario1.png)
 
-Le programme vous demande avant chaque cycle combien d'itérations vous souhaitez exécuter.
+Le programme vous demande avant chaque cycle combien d'itérations vous souhaitez exécuter. Il est recommandé d'augmenter graduellement ce nombre pour se rendre compte du temps que prennent ces itérations en fonction du nombre d'entités (cela dépendra de la machine sur laquelle le programme tourne).
 ### Création d'une nouvelle espèce
 Pour créer une nouvelle espèce, rendez-vous dans le fichier "Species.cs". Créez-y une nouvelle classe basée sur la classe abstraite de votre choix (Plant, Herbivore ou Carnivore). Définissez les variables requises et définissez la méthode Reproduce(). Cela sera plus façile de copier une autre classe du même type et d'en modifier le nom et les variables. Voici un exemple:
 ``` C#
@@ -39,7 +39,7 @@ Si vous voulez par exemple manuellement rajouter un objet, faites de la manière
 ``` C#
 entities.Add(new Tree(new int[] { 23, 65 }));
 ```
-Dans le cas où vous avez besoin composant aléatoire, vous pouvez accéder à l'attribut "random" de l'instance de la classe Entities, par exemple,
+Dans le cas où vous avez besoin d'un composant aléatoire, vous pouvez accéder à l'attribut "random" de l'instance de la classe Entities, par exemple,
 ``` C#
 entities.random.Next(55);
 ```
@@ -53,6 +53,15 @@ entities.OneOfEach(3);
 ```
 fera apparaître 3 instances de chaque organisme à un endroit aléatoire du plan. (**Attention**, si vous créez de nouvelles espèces, il faudra les rajouter à ce scénario ! Modifiez donc la méthode "OneOfEach" de la classe "Entities".)
 ___
+## Fonctionnement général
+Une instance *entities* de la classe *Entities* va contenir toutes les entités (instances d'une sous-classe de la classe abstraite *Entity*). Durant chaque itération de *entities*, les objets vont un à un subir une itération:
+* Les organismes vont perdre de l'énergie et perdre ou regagner de la vie (ou peut-être même mourir)
+* Les plantes vont se nourrir, se répandre ...
+* Les animaux vont se déplacer, chercher de la nourriture, chasser, se nourrir, se reproduire, défequer ...
+* La viande va pourrir
+* ...
+
+Il est important de noter qu'un objet peut intéragir plusieurs fois lors d'une iteration de *entities*. Donc il est par exemple normal de ne pas voir apparaître de la viande à l'endroit où un animal est mort, car une autre entité, dont l'iteration se passe après la mort de cet animal, aurait déjà pu la manger avant la fin de l'iteration de *entities*. Il faut donc être conscient qu'il y a une séquence d'évènements au sein d'une autre séquence d'évènements, mais que le programme n'affiche que les états entre les itérations de l'objet *entities*, et non entre les itérations des entités individuelles.
 ## Diagrammes
 ### Diagramme de classes
 ![Diagramme de classes](Diagramme_classe.png)

@@ -35,26 +35,28 @@ namespace Ecosysteme
                 return "There are no entities";
             }
         }
-        public string Number()
+        public string NumberString()
         {
-            int grass = 0;
-            int bush = 0;
-            int deer = 0;
-            int rabbit = 0;
-            int wolf = 0;
-            int fox = 0;
+            int[] array = this.Number();
+            string text;
+            text = string.Format("Number of entities:\n-Grass: {0}\n-Bush: {1}\n-Deer: {2}\n-Rabbit: {3}\n-Wolf: {4}\n-Fox: {5}\n-Meat: {6}\n-Organic waste: {7}", array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7]);
+            return text;
+        }
+        public int[] Number()
+        {
+            int[] array = new int[8];
             foreach (Entity entity in entities)
             {
-                if (entity is Grass) { grass ++; }
-                else if (entity is Bush) { bush++; }
-                else if (entity is Deer) { deer++; }
-                else if (entity is Rabbit) { rabbit++; }
-                else if (entity is Wolf) { wolf++; }
-                else if (entity is Fox) { fox++; }
+                if (entity is Grass) { array[0]++; }
+                else if (entity is Bush) { array[1]++; }
+                else if (entity is Deer) { array[2]++; }
+                else if (entity is Rabbit) { array[3]++; }
+                else if (entity is Wolf) { array[4]++; }
+                else if (entity is Fox) { array[5]++; }
+                else if (entity is Meat) { array[6]++; }
+                else if (entity is OrganicWaste) { array[7]++; }
             }
-            string text;
-            text = string.Format("Grass: {0} entities\nBush: {1} entities\nDeer: {2} entities\nRabbit: {3} entities\nWolf: {4} entities\nFox: {5} entities", grass, bush, deer, rabbit, wolf, fox) ;
-            return text;
+            return array;
         }
         public void Add(Entity entity)
         {
@@ -128,12 +130,11 @@ namespace Ecosysteme
         }
         public void DeerDeer()  //to observe mating (3 couples to increase chance of opposite sex)
         {
-            this.Add(new Deer(new int[] { -5, 0 }));
-            this.Add(new Deer(new int[] { 5, 0 }));
-            this.Add(new Deer(new int[] { -5, 50 }));
-            this.Add(new Deer(new int[] { 5, 50 }));
-            this.Add(new Deer(new int[] { -5, -50 }));
-            this.Add(new Deer(new int[] { 5, -50 }));
+            Deer deer1 = new Deer(new int[] { -5, 0 });
+            Deer deer2 = new Deer(new int[] { 5, 0 });
+            while (deer1.getSex() == deer2.getSex()) { deer2 = new Deer(new int[] { 5, 0 }); }
+            this.Add(deer1);
+            this.Add(deer2);
         }
         public void Scenario1()
         {
@@ -160,7 +161,7 @@ namespace Ecosysteme
             this.Add(new Grass(new int[] { -35, 40 }));
             this.Add(new Grass(new int[] { 40, 35 }));
             //let the plants spread
-            this.Iterate(45);
+            this.Iterate(500);
             //herbivores
             this.Add(new Deer(new int[] { 0, 0} ));
             this.Add(new Deer(new int[] { -16, 16 }));
@@ -176,10 +177,16 @@ namespace Ecosysteme
             //time to mate
             this.Iterate(35);
             //carnivores
-            this.Add(new Wolf(new int[] { -20, -10 }));
-            this.Add(new Wolf(new int[] { 0, -20 }));
-            this.Add(new Fox(new int[] { 20, 40 }));
-            this.Add(new Fox(new int[] { 25, 30 }));
+            Wolf wolf1 = new Wolf(new int[] { -20, -10 });
+            Wolf wolf2 = new Wolf(new int[] { 0, -20 });
+            while (wolf1.getSex() == wolf2.getSex()) { wolf2 = new Wolf(new int[] { 0, -20 }); }    //not same sex or the species will die out
+            this.Add(wolf1);
+            this.Add(wolf2);
+            Fox fox1 = new Fox(new int[] { 20, 40 });
+            Fox fox2 = new Fox(new int[] { 25, 30 });
+            while (fox1.getSex() == fox2.getSex()) { fox2 = new Fox(new int[] { 25, 30 }); }
+            this.Add(fox1);
+            this.Add(fox2);
         }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
