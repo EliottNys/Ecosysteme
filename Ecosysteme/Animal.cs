@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Ecosysteme
 {
@@ -35,12 +36,15 @@ namespace Ecosysteme
         {
             //losing/regenerating of energy/life
             base.Iterate(entities);
-            //pooping
-            if (entities.Chance(10)) { this.Poop(entities); }
-            //pregnancy
-            if (pregnant) { this.PregnancyIteration(entities); }
-            //actions (feeding / mating)
-            this.Action(entities);
+            if (entities.getList().Contains(this))  //not dead yet
+            {
+                //pooping
+                if (entities.Chance(10)) { this.Poop(entities); }
+                //pregnancy
+                if (pregnant) { this.PregnancyIteration(entities); }
+                //actions (feeding / mating)
+                this.Action(entities);
+            }
         }
         private void Move(int speed)  //moves the animal in the habitat (distance=f(speed))
         {
@@ -67,7 +71,7 @@ namespace Ecosysteme
                 direction[1] = entities.random.Next(-1, 2);
             }
         }
-        private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, 20)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
+        private void Poop(Entities entities) { entities.Add(new OrganicWaste(coordinates, energy / 5)); }    //when an animal poops, it leaves organic waste behind (which can be consumed by plants)
         private void PregnancyIteration(Entities entities)
         {
             if (pregnantTime == gestationPeriod)
@@ -100,11 +104,17 @@ namespace Ecosysteme
             }
             else if (Coordinates.Distance(coordinates, food.getCoordinates()) > contactRadius)   //walk or run towards food
             {
+                int distance = Coordinates.Distance(coordinates, food.getCoordinates());
                 this.ChangeDirection(Coordinates.Direction(coordinates, food.getCoordinates()));
-                if (food.GetType() == typeof(Herbivore) && Coordinates.Distance(coordinates, food.getCoordinates()) < 100) { this.Run(); }    //if the animal is hunting, it runs
+                if (food is Herbivore)  //hunting
+                {
+                    if (distance < runSpeed) { coordinates = food.getCoordinates(); }
+                    else if (distance < 50) { this.Run(); }     //if the animal is close, it runs
+                    else { this.Walk(); }
+                }
                 else { this.Walk(); }
             }
-            else if (food.GetType() != typeof(Animal))  //eat food
+            else if (!(food is Animal))  //eat food
             {
                 if (food.GetType() == typeof(Meat))
                 {
@@ -132,7 +142,8 @@ namespace Ecosysteme
             {
                 emptyEnergy -= calorieDensity;
                 energy += calorieDensity;
-                life--;
+                if (life >= 10 / plant.getOccupiedArea().Count) { life -= 10 / plant.getOccupiedArea().Count; }
+                else { life = 0; }
             }
             if (life == 0)
             {

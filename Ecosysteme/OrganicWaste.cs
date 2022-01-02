@@ -11,7 +11,7 @@
             this.nutrients = nutrients;
         }
         //METHODS
-        public override void Iterate(Entities entities) { }
+        public override void Iterate(Entities entities) { ; }
         public override string ToString() { return base.ToString() + string.Format(", nutrients={0}", nutrients); }
         public void Leave(int leftover) { nutrients = leftover; }   //if only a part is consumed
         protected override void Transform(Entities entities) { }   //Organic waste does not transform

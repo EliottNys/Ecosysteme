@@ -7,6 +7,11 @@ namespace Ecosysteme
     public static class Coordinates    //allows to handle coordinates, probabilities ...
     {
         //METHODS
+        public static bool Same(int[] firstCoordinates, int[] secondCoordinates)
+        {
+            if (firstCoordinates[0] == secondCoordinates[0] && firstCoordinates[1] == secondCoordinates[1]) { return true; }
+            else { return false; }
+        }
         public static int Distance(int[] firstCoordinates, int[] secondCoordinates)     //calculates the distance between two points (rounded up)
         {
             return (int)Math.Ceiling(Math.Sqrt(Math.Pow(firstCoordinates[0] - secondCoordinates[0], 2) + Math.Pow(firstCoordinates[1] - secondCoordinates[1], 2)));
@@ -74,6 +79,11 @@ namespace Ecosysteme
                 }
             }
             return answer;
+        }
+        public static bool IsInside(int[] coordinates, int size)
+        {
+            if (coordinates[0] > -size && coordinates[0] < size && coordinates[1] > -size && coordinates[1] < size) { return true; }
+            else { return false; }
         }
     }
 }

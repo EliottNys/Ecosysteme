@@ -26,7 +26,7 @@ namespace Ecosysteme
             {
                 text += string.Format("id={0}, type={1}, {2}\n", IDGenerator.GetId(entity, out entity.IsFirstTime), entity.GetType().Name, entity.ToString());
             }
-            if (text.Length > 3)
+            if (text.Length > 1)
             {
                 return text.Remove(text.Length - 1, 1); //remove last new line
             }
@@ -41,29 +41,30 @@ namespace Ecosysteme
             IDGenerator.GetId(entity, out entity.IsFirstTime);
         }
         public void Remove(Entity entity) { entities.Remove(entity); }   //note: the object is removed from the object "entities", but does it still use resources / exist ?
-        public void Iterate()
+        public void Iterate(int times = 1)
         {
-            Array initialArray = entities.ToArray();
-            foreach (Entity entity in initialArray)
+            for (int iteration = 0; iteration < times; iteration++)
             {
-                entity.Iterate(this);
-            }
+                Array initialArray = entities.ToArray();
+                foreach (Entity entity in initialArray)
+                {
+                    entity.Iterate(this);
+                }
+            } 
         }
         public bool NoPlant(int[] newCoordinates)  //checks if there is not yet a plant on at these coordinates
         {
             foreach (Entity entity in entities)
             {
-                if (entity.GetType().IsSubclassOf(typeof(Plant)))
+                if (entity is Plant)
                 {
                     Plant plant = (Plant)entity;
-                    if (plant.getOccupiedArea().Contains(newCoordinates)) { return false; }
+                    //if (plant.getOccupiedArea().Contains(newCoordinates)) { return false; }
+                    foreach (int[] point in plant.getOccupiedArea())
+                    {
+                        if (Coordinates.Same(point, newCoordinates)) { return false; }
+                    }
                 }
-                /*
-                if (entity.getCoordinates().SequenceEqual(newCoordinates) && entity.GetType().IsSubclassOf(typeof(Plant)))
-                {
-                    return false;
-                }
-                */
             }
             return true;
         }
@@ -72,12 +73,12 @@ namespace Ecosysteme
         {
             for (int i = 0; i < times; i++)
             {
-                this.Add(new Grass(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
-                this.Add(new Bush(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
-                this.Add(new Deer(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
-                this.Add(new Rabbit(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
-                this.Add(new Wolf(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
-                this.Add(new Fox(new int[] { random.Next(-100, 101), random.Next(-100, 101) }));
+                this.Add(new Grass(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
+                this.Add(new Bush(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
+                this.Add(new Deer(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
+                this.Add(new Rabbit(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
+                this.Add(new Wolf(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
+                this.Add(new Fox(new int[] { random.Next(-50, 51), random.Next(-50, 51) }));
             }
         }
         public void GrassOrganicWaste() //to observe a plant eating
@@ -108,13 +109,58 @@ namespace Ecosysteme
         {
             this.Add(new Deer(new int[] { -5, 0 }));
             this.Add(new Deer(new int[] { 5, 0 }));
-            this.Add(new Deer(new int[] { -5, 100 }));
-            this.Add(new Deer(new int[] { 5, 100 }));
-            this.Add(new Deer(new int[] { -5, -100 }));
-            this.Add(new Deer(new int[] { 5, -100 }));
+            this.Add(new Deer(new int[] { -5, 50 }));
+            this.Add(new Deer(new int[] { 5, 50 }));
+            this.Add(new Deer(new int[] { -5, -50 }));
+            this.Add(new Deer(new int[] { 5, -50 }));
+        }
+        public void Scenario1()
+        {
+            //bushes
+            this.Add(new Bush(new int[] { 0, 0 }));
+            this.Add(new Bush(new int[] { 0, 50 }));
+            this.Add(new Bush(new int[] { -25, 0 }));
+            this.Add(new Bush(new int[] { -25, -25 }));
+            this.Add(new Bush(new int[] { -12, 50 }));
+            this.Add(new Bush(new int[] { 13, 50 }));
+            this.Add(new Bush(new int[] { 30, 20 }));
+            this.Add(new Bush(new int[] { 40, -40 }));
+            //grass
+            this.Add(new Grass(new int[] { 0, 12 }));
+            this.Add(new Grass(new int[] { -13, 0 }));
+            this.Add(new Grass(new int[] { -25, 12 }));
+            this.Add(new Grass(new int[] { -13, 25 }));
+            this.Add(new Grass(new int[] { 0, 38 }));
+            this.Add(new Grass(new int[] { 25, 12 }));
+            this.Add(new Grass(new int[] { 25, -25 }));
+            this.Add(new Grass(new int[] { 25, -50 }));
+            this.Add(new Grass(new int[] { -20, -40 }));
+            this.Add(new Grass(new int[] { -50, -20 }));
+            this.Add(new Grass(new int[] { -35, 40 }));
+            this.Add(new Grass(new int[] { 40, 35 }));
+            //let the plants spread
+            this.Iterate(45);
+            //herbivores
+            this.Add(new Deer(new int[] { 0, 0} ));
+            this.Add(new Deer(new int[] { -16, 16 }));
+            this.Add(new Deer(new int[] { -5, 16 }));
+            this.Add(new Deer(new int[] { 10, 31 }));
+            this.Add(new Deer(new int[] { 19, 17 }));
+            this.Add(new Deer(new int[] { 0, 25 }));
+            this.Add(new Rabbit(new int[] { 0, 30 }));
+            this.Add(new Rabbit(new int[] { -2, 30 }));
+            this.Add(new Rabbit(new int[] { -5, 27 }));
+            this.Add(new Rabbit(new int[] { 0, 20 }));
+            this.Add(new Rabbit(new int[] { 5, 15 }));
+            //time to mate
+            this.Iterate(35);
+            //carnivores
+            this.Add(new Wolf(new int[] { -20, -10 }));
+            this.Add(new Wolf(new int[] { 0, -20 }));
+            this.Add(new Fox(new int[] { 20, 40 }));
+            this.Add(new Fox(new int[] { 25, 30 }));
         }
         //ACCESSORS
         public List<Entity> getList() { return entities; }
     }
-    //idée pour plus tard : classe Habitat qui définit la taille du plan, et dans laquelle on "place" les organismes, avec des frontières
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ecosysteme
 {
@@ -14,23 +15,25 @@ namespace Ecosysteme
         public Plant(int[] coordinates) :
         base(coordinates)
         {
-            this.occupiedArea = Coordinates.Area(coordinates, 1);   //if you want to override this in the species class: 1 occupies 5 points, 2 occupies 13 points, 3 occupies 29 points ...
+            this.occupiedArea = Coordinates.Area(coordinates, 2);   //if you want to override this in the species class: 1 occupies 5 points, 2 occupies 13 points, 3 occupies 29 points ...
         }
         //METHODS
         public override void Iterate(Entities entities)
         {
             //losing/regenerating of energy/life
             base.Iterate(entities);
-            //feeding
-            OrganicWaste food = this.FindOrganicWaste(entities);
-            this.Consume(food, entities);
-            //reproduction
-            int[] reproduce = this.DetermineReproduction(entities);
-            if (reproduce != null)
+            if (entities.getList().Contains(this))  //not dead yet
             {
-                entities.Add(this.Reproduce(reproduce));
+                //feeding
+                OrganicWaste food = this.FindOrganicWaste(entities);
+                if (entities.getList().Contains(this)) { this.Consume(food, entities); }
+                //reproduction
+                int[] location = this.DetermineReproduction(entities);
+                if (location != null && entities.getList().Contains(this))
+                {
+                    entities.Add(this.Reproduce(location));
+                }
             }
-            //behavior unique to plants
         }
         private OrganicWaste FindOrganicWaste(Entities entities)
         {
@@ -73,7 +76,7 @@ namespace Ecosysteme
             if (entities.random.Next(1, 101) < propagationSpeed)
             {
                 int[] newCoordinates = Coordinates.CloseBy(coordinates, sowingRadius, entities.random);
-                if (entities.NoPlant(newCoordinates))
+                if (entities.NoPlant(newCoordinates) && Coordinates.IsInside(newCoordinates, 65))
                 {
                     return newCoordinates;
                 }

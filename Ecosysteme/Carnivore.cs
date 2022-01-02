@@ -1,4 +1,5 @@
-﻿namespace Ecosysteme
+﻿using System.Diagnostics;
+namespace Ecosysteme
 {
     abstract class Carnivore : Animal   //all carnivore species
     {
@@ -21,7 +22,7 @@
             int distance = 10000;
             foreach (Entity entity in entities.getList())
             {
-                if ((entity.GetType() == typeof(Meat) || (entity.GetType() == typeof(Herbivore) && foundMeat == false)) //meat or animal if no meat was found yet
+                if ((entity.GetType() == typeof(Meat) || (entity is Herbivore && foundMeat == false)) //meat or animal if no meat was found yet
                     && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius    //within vision radius
                     && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)   //closer than previous finding
                 {

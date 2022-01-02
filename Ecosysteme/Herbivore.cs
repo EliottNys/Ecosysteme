@@ -19,7 +19,7 @@
             int distance = 10000;
             foreach (Entity entity in entities.getList())
             {
-                if (entity.GetType() == typeof(Plant) && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
+                if (entity is Plant && Coordinates.Distance(coordinates, entity.getCoordinates()) < visionRadius && Coordinates.Distance(coordinates, entity.getCoordinates()) < distance)
                 {
                     response = entity;
                     distance = Coordinates.Distance(coordinates, entity.getCoordinates());

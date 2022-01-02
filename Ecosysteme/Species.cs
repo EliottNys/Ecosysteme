@@ -72,7 +72,7 @@
             calorieDensity = 1;   //calories par life point
         }
         //METHODS
-        protected override Organism Reproduce(int[] newCoordinates) { return new Grass((int[])coordinates.Clone()); }
+        protected override Organism Reproduce(int[] coordinates) { return new Grass((int[])coordinates.Clone()); }
     }
     class Bush : Plant
     {
@@ -86,6 +86,6 @@
             calorieDensity = 3;   //calories par life point
         }
         //METHODS
-        protected override Organism Reproduce(int[] newCoordinates) { return new Bush((int[])coordinates.Clone()); }
+        protected override Organism Reproduce(int[] coordinates) { return new Bush((int[])coordinates.Clone()); }
     }
 }

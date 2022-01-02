@@ -22,7 +22,8 @@
         }
         private bool IterateEnergyAndLife(int amount)   //the bool return value expresses whether the organism needs to transform
         {
-            if (energy > amount)
+            if (life == 0) { return true; }
+            else if (energy > amount)
             {
                 this.Fatigue(amount);
                 if (life < 100 && energy >= 80) //if an organism has over 80% energy, his health regenerates over time
@@ -37,20 +38,17 @@
                 this.Fatigue(amount);
                 return false;
             }
-            else
-            {
-                return true;
-            }
+            else { return true; }
         }
         protected override void Transform(Entities entities)
         {
-            if (this.GetType().IsSubclassOf(typeof(Plant))) //organism is plant
+            if (this is Plant) //organism is plant
             {
-                entities.Add(new OrganicWaste(coordinates, 20));    //turn into organic waste
+                entities.Add(new OrganicWaste(coordinates, 20 + energy));   //turn into organic waste
             }
             else  //organism is animal
             {
-                entities.Add(new Meat(coordinates, 20));
+                entities.Add(new Meat(coordinates, 50+energy));
             }
             entities.Remove(this);
         }
